@@ -11,7 +11,7 @@ documents = [documents_to_dict[key] for key in documents_keys]
 
 # Запишем все это в файлы, т.к это понадобтися потом
 with open('keys.pickle', 'wb') as f:
-    pickle.dump(documents_keys, f)
+    pickle.dump(list(documents_keys), f)
 
 with open('documents.pickle', 'wb') as f:
     pickle.dump(documents, f)
