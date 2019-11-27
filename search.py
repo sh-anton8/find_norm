@@ -69,7 +69,7 @@ class Search:
                 self.counted_tfidf[names[i]].append(X_T[i][j])
 
 
-# file = open("/Users/shapkin/Downloads/codex_1.txt", 'r')
+# file = open("codex_1.txt", 'r')
 # f = file.read()
 # colle = coll.Collection(f)
 # J, Z = coll.iter_by_par(colle)
@@ -79,7 +79,7 @@ class Search:
 #    print(k)
 #    print('---')
 
-srch = Search("/Users/shapkin/Downloads/codex_1.txt")
+srch = Search("codex_1.txt")
 srch.inversed_index()
 srch.request_processing("Я получил возврат денег в размере 5000 руб. с государственного сайта, надо ли мне платить с этого возрата налог?")
 
