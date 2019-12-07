@@ -11,13 +11,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 
 
-def glue_func(array):
-    ans = array[0]
-    for i in range(1, len(array)):
-        ans += ' ' + array[i]
-    return ans
-
-
 class Search:
     def __init__(self, directory, tokenizer):
         self.dir = directory
