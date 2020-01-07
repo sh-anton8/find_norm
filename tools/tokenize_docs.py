@@ -7,7 +7,7 @@ import os
 from nltk.corpus import stopwords
 from pymorphy2 import MorphAnalyzer
 from string import punctuation
-from coll import iter_by_docs
+from tools.coll import iter_by_docs
 
 class Tokenizer:
     def __init__(self, text):
