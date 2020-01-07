@@ -1,10 +1,10 @@
 # Антон
 
 import os
-import coll
+import tools.coll as coll
 import numpy as np
 import pickle
-import tokenize_docs
+import tools.tokenize_docs as tokenize_docs
 from pymorphy2 import MorphAnalyzer
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
