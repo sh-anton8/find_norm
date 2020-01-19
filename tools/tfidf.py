@@ -79,12 +79,15 @@ class tfidf():
         return tf_idf_dictionary
 
 
+
+# Пример работы (также имеется пример работы в классе Search)
+
 ''' 
-mod = tfidf("/Users/shapkin/Desktop/AlgosPython/files/text_to_num_dict_codexes_for_chapter",
-            "/Users/shapkin/Desktop/AlgosPython/files/num_to_text_dict_codexes_for_chapter",
-            "/Users/shapkin/Desktop/AlgosPython/files/num_to_tokens_dict_codexes_for_chapter",
-            "/Users/shapkin/Desktop/AlgosPython/files/inv_ind_codexes_for_chapter",
-            "/Users/shapkin/Desktop/AlgosPython/files/num_to_len_dict_codexes_for_chapter")
+mod = tfidf("files/text_to_num_dict_codexes_for_chapter",
+            "files/num_to_text_dict_codexes_for_chapter",
+            "files/num_to_tokens_dict_codexes_for_chapter",
+            "files/inv_ind_codexes_for_chapter",
+            "files/num_to_len_dict_codexes_for_chapter")
 
 mod.count_tf_idf()
 
