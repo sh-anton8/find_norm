@@ -62,6 +62,7 @@ class Separator:
             print(r)
 
 
-
+'''
 s = Separator("pravoved_articles.txt")
 s.fill_requests()
+'''
