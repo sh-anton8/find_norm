@@ -34,8 +34,8 @@ def docs_parser(dir):
     for file in os.listdir(dir):
         for i_d in iter_by_docs(file, dir, 'chapter', 1):
             t = Tokenizer(i_d)
-            print(t.tokenize(cash, morph, stop_words))
 
-
+'''
 dir = "codexes"
 docs_parser(dir)
+'''
