@@ -1,7 +1,7 @@
 #Настя
 
 import re
-import coll
+import tools.coll as coll
 import os
 
 class Request:
