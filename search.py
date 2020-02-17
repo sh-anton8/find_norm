@@ -148,7 +148,24 @@ class TFIDF_Search(Search):
 
         ans.sort(key=lambda x: x[1], reverse=True)
         return ans[:num_in_top]
+    
+    
+    def request_processing_input_without_print2(self, inp):
+        reqst = inp
+        self.tokenizer.text = reqst
+        reqst = self.tokenizer.tokenize(self.cash, self.morph, self.stop_words)
+        req_tfidf_dict = self.tfidf_mod.request_counting([" ".join(reqst)])
+        cos_sim = cosine_similarity(self.tfidf_mod.tfidf_matrix, req_tfidf_dict)
 
+
+        ans = []
+        i = 0
+        for el in cos_sim:
+            ans.append((self.tfidf_mod.num_to_num_dict[i], el[0]))
+            i += 1
+
+        ans.sort(key=lambda x: x[1], reverse=True)
+        return ans
 
     # метод для обработки запроса из Правоведа
     def request_processing_pravoved(self, directory, num_in_top):
