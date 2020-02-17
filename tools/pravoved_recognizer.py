@@ -73,6 +73,8 @@ class Separator:
 
 
 codexes_requests = []
+s = Separator("pravoved_articles.txt")
+s.fill_requests()
 
 
 def dict_codexes_creator():
