@@ -2,7 +2,6 @@ import search as search
 import tools.pravoved_recognizer as pravoved_recognizer
 import tools.tokenize_docs as tokenize_docs
 import matplotlib.pyplot as plt
-import ml_metrics
 from sklearn.metrics import ndcg_score
 import math
 
@@ -54,29 +53,31 @@ for i in range(len(pravoved)):
     answers[i] = tfidf_searcher.request_processing_input_without_print2(pravoved[i].question)
 
 
-def map_k():
-    actual_cod, predicted_cod = [], []
-    actual_art, predicted_art = [], []
-    for i in range(1, 100, 2):
-        for j in range(len(pravoved)):
-            answ = answers[j][:i]
-            cod, art = [], []
-            for ans in answ:
-                cod.append(ans[0][0])
-                art.append((ans[0][0], ans[0][2]))
-            predicted_cod.append(cod)
-            predicted_art.append(art)
-            actual_cod.append([pravoved[j].codex])
-            actual_art.append([(pravoved[j].codex, pravoved[j].norm)])
-        mapk_cod = ml_metrics.mapk(actual_cod, predicted_cod, i)
-        mapk_art = ml_metrics.mapk(actual_art, predicted_art, i)
-        print(mapk_cod)
-        print(mapk_art)
-        x.append(i)
-        y_codex.append(mapk_cod)
-        y_articles.append(mapk_art)
+def ap_k(actual, predicted):
+    apk, num_rel = 0, 0
+    for i in range(len(predicted)):
+        if predicted[i] in actual:
+            num_rel += 1
+            apk += num_rel / (i + 1)
+    apk /= len(actual)
+    return apk
 
-    plt.plot(x, y_codex, color='blue', label='Кодексы')
+
+def map_k():
+    for i in range(1, 100, 2):
+        apk = 0
+        for j in range(len(pravoved)):
+            actual_art, predicted_art = [], []
+            answ = answers[j][:i]
+            for ans in answ:
+                predicted_art.append((ans[0][0], ans[0][2]))
+            actual_art.append((pravoved[j].codex, pravoved[j].norm))
+            apk += ap_k(actual_art, predicted_art)
+        apk /= len(pravoved)
+        print(apk)
+        x.append(i)
+        y_articles.append(apk)
+
     plt.plot(x, y_articles, color='red', label='Статьи')
     plt.ylabel('MAP(k)')
     plt.xlabel('Количество статей в топе')
