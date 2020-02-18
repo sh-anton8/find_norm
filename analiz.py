@@ -145,7 +145,7 @@ def mrr():
 
 
     plt.plot(x, mrr, color='red', label='Статьи')
-    plt.ylabel('MRR(k)')
+    plt.ylabel('MRR')
     plt.xlabel('Количество статей в топе')
     plt.legend()
     plt.savefig('mrr.png')
