@@ -13,7 +13,7 @@ tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), "tfidf(1_1
 pravoved = pravoved_recognizer.norms_codexes_to_normal("codexes")
 
 
-def topn_recall():
+def top_n_cover(in_percent): # аргумент позволяет выводить график в процентах
     for i in range(1, 101, 2):
         codex = 0
         article = 0
@@ -38,13 +38,25 @@ def topn_recall():
         y_codex.append(codex + both)
         y_articles.append(both)
 
-    plt.plot(x, y_codex, color='blue', label='Кодексы')
-    plt.plot(x, y_articles, color='red', label='Статьи')
-    plt.title('Точность в зависимости от количества статей в топе')
-    plt.ylabel('Попаданий')
-    plt.xlabel('Количество статей в топе')
-    plt.legend()
-    plt.show()
+    if (in_percent == 0):
+        plt.plot(x, y_codex, color='blue', label='Кодексы')
+        plt.plot(x, y_articles, color='red', label='Статьи')
+        plt.title('Покртие в зависимости от количества статей в топе')
+        plt.ylabel('Попаданий')
+        plt.xlabel('Количество статей в топе')
+        plt.legend()
+        plt.show()
+    else:
+        for i in range(len(y_articles)):
+            y_articles[i] /= 1623
+            y_codex[i] /= 1623
+        plt.plot(x, y_codex, color='blue', label='Кодексы')
+        plt.plot(x, y_articles, color='red', label='Статьи')
+        plt.title('Покртие в зависимости от количества статей в топе')
+        plt.ylabel('Попаданий (в процентах)')
+        plt.xlabel('Количество статей в топе')
+        plt.legend()
+        plt.show()
 
 
 answers = [0] * len(pravoved)
