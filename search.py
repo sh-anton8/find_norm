@@ -8,7 +8,8 @@ import tools.tfidf as tf
 from nltk.corpus import stopwords
 from sklearn.metrics.pairwise import cosine_similarity
 import tools.requests_recognizer as request_recognizer
-import tools.inverse_index as ii
+from tools.inverse_index import InvIndex
+
 import numpy as np
 import tools.tfidf as tfidf
 import tools.coll as coll
@@ -40,7 +41,7 @@ class Inv_Ind_Search(Search):
     # здесь inv_ind_file и т.д - путь до файлов (все файлы в формате pickle). Они уже существуют и их считать не надо
     def __init__(self, tokenizer, inverse_index_pickle):
         Search.__init__(self, tokenizer)
-        self.inverse_index = ii.load_inverse_index(inverse_index_pickle)
+        self.inverse_index = InvIndex.load(inverse_index_pickle)
         self.cash = self.inverse_index.cash
 
     # обрабатывает запрос с клавиатуры и выдает к нему ответ
@@ -186,12 +187,15 @@ class TFIDF_Search(Search):
 # (а именно словарь - номер статьи -> ее текст и в обратную сторону, а также словарь номер статьи - токены)
 
 #'''
-dir = "codexes"
-s = ii.InvIndex(dir, tokenize_docs.Tokenizer('text'))
-s.update_dicts('article')
-s.build_inversed_index('article')
-s.num_tokens_dict_builder()
-ii.save_inverse_index(s, "inv_ind_codexes_for_article_pickle")
+fnCollectionDir = "codexes"
+fnIdxCodex2Article = "idx/codex2article.pickle"
+if not os.path.isfile(fnIdxCodex2Article):
+    # не понял - почему тут Tokenizer('text') ??????
+    s = ii.InvIndex(fnCollectionDir, tokenize_docs.Tokenizer('text'))
+    s.update_dicts('article')
+    s.build_inversed_index('article')
+    s.num_tokens_dict_builder()
+    s.save(fnIdxCodex2Article)
 #'''
 
 # Все сохраненные файлы сохранены на Я.ДИСК
@@ -203,13 +207,12 @@ ii.save_inverse_index(s, "inv_ind_codexes_for_article_pickle")
 # request_processing_input_qRelev() - отвечает на запрос с клавиатуры
 # request_processing_pravoved_fmerRelev(dir2) - отвечает за ответ на вопросы с правоведа
 
-'''
-searcher = Inv_Ind_Search(tokenize_docs.Tokenizer('text'),
-                         "files/inv_ind_codexes_for_article_pickle")
+
+searcher = Inv_Ind_Search(tokenize_docs.Tokenizer('text'), fnIdxCodex2Article)
 # searcher.request_processing_input_qRelev()
 dir2 = "files/pravoved_articles.txt"
 searcher.request_processing_pravoved_fmerRelev("codexes")
-'''
+
 
 
 

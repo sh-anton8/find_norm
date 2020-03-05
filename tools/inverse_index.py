@@ -5,6 +5,7 @@ import tools.coll as coll
 import pickle
 from pymorphy2 import MorphAnalyzer
 from nltk.corpus import stopwords
+from tqdm import tqdm
 
 
 class InvIndex():
@@ -36,6 +37,8 @@ class InvIndex():
             self.num_tokens_dict[key] = tokens
 
     def build_inversed_index(self, par):  # par - по чему итерируемся, например: 'paragraph'
+        
+        t = tqdm(total = len( os.listdir(self.dir)))
         for file in os.listdir(self.dir):
             for i_d in coll.iter_by_docs(file, self.dir, par, 1):
                 self.tokenizer.text = i_d
@@ -47,14 +50,20 @@ class InvIndex():
                     else:
                         self.inv_ind[token] = [(self.text_to_num[i_d], tokens.count(token))]
                 self.num_to_len[self.text_to_num[i_d]] = len(list(tokens))
+            t.update(1)
+        t.close()
 
 
+    # сохраняем весь объект
+    def save(self, file):
+        print('Saving index to: {file}')
+        with open(file, 'wb') as f:
+            pickle.dump(self, f)
 
-def save_inverse_index(inv_ind, file):
-    with open(file, 'wb') as f:
-        pickle.dump(inv_ind, f)
-
-
-def load_inverse_index(file):
-    with open(file, 'rb') as f:
-        return pickle.load(f)
+    # загружаем весь объект, использовать можно потом только его часть
+    # для этого используем модификатор @staticmethod
+    @staticmethod
+    def load(file):
+        print('Loadinf index from: {file}')
+        with open(file, 'rb') as f:
+            return pickle.load(f)

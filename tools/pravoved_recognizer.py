@@ -23,7 +23,7 @@ class Separator:
         self.path_to_file = path_to_file
 
     def editor(self):                   #деление текста на запросы
-        file = open(self.path_to_file, 'r')
+        file = open(self.path_to_file, 'r', encoding='utf-8')
         file = file.read().lower()
         file = file.replace('\xa0', "")
         a = re.split('\n(?!\t)', file)
