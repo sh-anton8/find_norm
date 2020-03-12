@@ -1,38 +1,44 @@
 # Антон
 
-import math
 import pickle
 import numpy as np
-from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
-import tools.inverse_index as ii
+from tools.inverse_index import InvIndex
+from tqdm import tqdm
 
-class tfidf():
+class TFIDF():
     def __init__(self, inverse_index_pickle, ngramm=(1, 1)):
         self.vectorizer = TfidfVectorizer(preprocessor=None, encoding='utf-8', ngram_range=ngramm)
         self.tfidf_matrix = np.array([])
         self.num_to_num_dict = {}
-        self.inverse_index = ii.load_inverse_index(inverse_index_pickle)
+        self.inverse_index = InvIndex.load(inverse_index_pickle)
 
     def count_tf_idf(self):
         corpus = []
         ind = 0
+        ta = tqdm(total=len(list(self.inverse_index.num_tokens_dict.keys())))
         for key in list(self.inverse_index.num_tokens_dict.keys()):
             corpus.append(" ".join(self.inverse_index.num_tokens_dict[key]))
             self.num_to_num_dict[ind] = key
             ind += 1
+            ta.update(1)
         self.tfidf_matrix = self.vectorizer.fit_transform(corpus)
+        ta.close()
 
     def request_counting(self, request):
         request_tfidf = self.vectorizer.transform(request)
         return request_tfidf
 
+    # сохраняем весь объект
+    def save(self, file):
+        print('Saving tf-idf to: {file}')
+        with open(file, 'wb') as f:
+            pickle.dump(self, f)
 
-def save_tfidf(tfidf, file):
-    with open(file, 'wb') as f:
-        pickle.dump(tfidf, f)
-
-
-def load_tfidf(file):
-    with open(file, 'rb') as f:
-        return pickle.load(f)
+    # загружаем весь объект, использовать можно потом только его часть
+    # для этого используем модификатор @staticmethod
+    @staticmethod
+    def load(file):
+        print('Loading tfidf from: {file}')
+        with open(file, 'rb') as f:
+            return pickle.load(f)
