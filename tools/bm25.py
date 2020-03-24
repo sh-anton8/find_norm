@@ -6,7 +6,7 @@ PARAM_K1 = 1.5
 PARAM_B = 0.75
 EPSILON = 0.25
 
-class My_BM():
+class My_BM:
     def __init__(self, inverse_index_pickle):
         self.inverse_index = InvIndex.load(inverse_index_pickle)
         self.corpus = []
@@ -27,7 +27,7 @@ class My_BM():
 
     # сохраняем весь объект
     def save(self, file):
-        print('Saving BM25 to: {}', file)
+        print('Saving BM25 to: {}'.format(file))
         with open(file, 'wb') as f:
             pickle.dump(self, f)
 
@@ -35,6 +35,6 @@ class My_BM():
     # для этого используем модификатор @staticmethod
     @staticmethod
     def load(file):
-        print('Loading BM25 from: {}', file)
+        print('Loading BM25 from: {}'.format(file))
         with open(file, 'rb') as f:
             return pickle.load(f)

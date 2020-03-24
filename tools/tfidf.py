@@ -34,7 +34,7 @@ class TFIDF:
 
     # сохраняем весь объект
     def save(self, file):
-        print('Saving tf-idf to: {file}')
+        print('Saving tf-idf to: {}'.format(file))
         with open(file, 'wb') as f:
             pickle.dump(self, f)
 
@@ -42,6 +42,6 @@ class TFIDF:
     # для этого используем модификатор @staticmethod
     @staticmethod
     def load(file):
-        print('Loading tfidf from: {file}')
+        print('Loading tfidf from: {}'.format(file))
         with open(file, 'rb') as f:
             return pickle.load(f)

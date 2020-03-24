@@ -54,7 +54,7 @@ class InvIndex():
 
     # сохраняем весь объект
     def save(self, file):
-        print('Saving index to: {file}')
+        print('Saving index to: {}'.format(file))
         with open(file, 'wb') as f:
             pickle.dump(self, f)
 
@@ -62,6 +62,6 @@ class InvIndex():
     # для этого используем модификатор @staticmethod
     @staticmethod
     def load(file):
-        print('Loading index from: {file}')
+        print('Loading index from: {}'.format(file))
         with open(file, 'rb') as f:
             return pickle.load(f)

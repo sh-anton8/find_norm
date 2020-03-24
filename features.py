@@ -34,6 +34,9 @@ class Features:
         return F
 
     def get_doc_len_feature(self, req_text, article_num):
+        if article_num not in self.inv_ind.num_to_len:
+            return 0
+
         return self.inv_ind.num_to_len[article_num]
 
     def get_bm25_feature(self, req_text, article_num):

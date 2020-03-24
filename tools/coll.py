@@ -50,7 +50,7 @@ def iter_by_art(collect, doc_id):
         for j, num_art in new_col.itersplit(art_sep_word_name):
             num_art = num_art.split(' ')[1]
             d_art[(doc_id, num_art[:-1])] = j
-            d_rev[j] = (doc_id, num_art[-1])
+            d_rev[j] = (doc_id, num_art[:-1])
     return d_art, d_rev
 
 
@@ -152,8 +152,8 @@ def iter_pravoved(docs):
 
 
 '''
-names, _ = iter_by_docs("codex_1.txt", "/Users/anastasia/PycharmProjects/find_norm/codexes", 'article', 0)       #Возвращает словарь, где ключ -- пара (документ, статья), значение  -- название статьи
-print(names.keys())
+names, _ = iter_by_docs("codex_26.txt", "/Users/anastasia/PycharmProjects/find_norm/codexes", 'article', 0)       #Возвращает словарь, где ключ -- пара (документ, статья), значение  -- название статьи
+print(_.values())
 '''
 
 '''
