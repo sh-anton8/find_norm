@@ -5,24 +5,25 @@ import os
 
 
 chp_sep_word = "Глава [\d\.'I''V''X']* "
-art_sep_word = "Статья [\d\.]* "
+art_sep_word = "Статья [\d\.]+\. "
 par_sep_word = "\n\d\. "
-art_sep_word_name = 'Статья .*?\n'
+art_sep_word_name = 'Статья [\d\.]+?\. .*?\n'
+
 
 class Collection:  #класс для коллекции
     def __init__(self, text):
         self.text = text
         self.d = {}
 
-
-    def itersplit(self, sep):  #функция для разделения текста по sep и возвращаю по одному
+    def itersplit(self, sep):
+        #функция для разделения текста по sep и возвращаю по одному
         exp = re.compile(sep)
         if exp.search(self.text, 0) is None:
             return
         pos = 0
         m1 = exp.search(self.text, 0)
         while True:
-            m = exp.search(self.text, pos)
+            m = exp.search(self.text, m1.start() + 1)
             if not m:
                 yield self.text[pos:], m1[0]
                 break
@@ -31,7 +32,8 @@ class Collection:  #класс для коллекции
             m1 = m
 
 
-def iter_by_chapter(collect, doc_id): #итерирование по главам с возвращением двух словрей -- d[текст] = номер главы,
+def iter_by_chapter(collect, doc_id):
+    #итерирование по главам с возвращением двух словрей -- d[текст] = номер главы,
                                         # d[номер главы] = текст
     d_chp, d_rev = {}, {}
     for i, num_chp in collect.itersplit(chp_sep_word):
@@ -41,26 +43,14 @@ def iter_by_chapter(collect, doc_id): #итерирование по глава�
     return d_chp, d_rev
 
 
-def iter_by_art_no_chp(collect, doc_id):
+def iter_by_art(collect, doc_id):
     d_art, d_rev = {}, {}
     for i, num_chp in collect.itersplit(chp_sep_word):
         new_col = Collection(i)
-        for j, num_art in new_col.itersplit(art_sep_word):
+        for j, num_art in new_col.itersplit(art_sep_word_name):
             num_art = num_art.split(' ')[1]
-            d_art[(doc_id, num_art)] = j
-            d_rev[j] = (doc_id, num_art)
-    return d_art, d_rev
-
-
-def iter_by_art(collect, doc_id):  #возвращение словарей с номером главы и статьи
-    d_art, d_rev = {}, {}
-    for i, num_chp in collect.itersplit(chp_sep_word):
-        num_chp = num_chp.split(' ')[1]
-        new_col = Collection(i)
-        for j, num_art in new_col.itersplit(art_sep_word):
-            num_art = num_art.split(' ')[1]
-            d_art[(doc_id, num_chp[:-1], num_art[:-1])] = j
-            d_rev[j] = (doc_id, num_chp[:-1], num_art[:-1])
+            d_art[(doc_id, num_art[:-1])] = j
+            d_rev[j] = (doc_id, num_art[-1])
     return d_art, d_rev
 
 
@@ -72,6 +62,18 @@ def art_name(collect, doc_id):
         for j, num_art in new_col.itersplit(art_sep_word_name):
             name[(doc_id, num_chp[:-1], num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
     return name
+
+
+def art_name2(collect, doc_id):
+    name = {}
+    name2 = {}
+    for i, num_chp in collect.itersplit(chp_sep_word):
+        new_col = Collection(i)
+        for j, num_art in new_col.itersplit(art_sep_word_name):
+            name[(doc_id, num_chp, num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
+            name2[(doc_id, num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
+    return name, name2
+
 
 def iter_by_par(collect, doc_id):  #возвращение словарей с номером главы, статьи и пункта
     d_par, d_rev = {}, {}
@@ -92,10 +94,11 @@ def chp(col): #итерирование по главам
     for i, num_chp in col.itersplit(chp_sep_word):
         yield i
 
+
 def art(col): #итерирование по статьям
     for i, num_chp in col.itersplit(chp_sep_word):
         new_col = Collection(i)
-        for j, num_art in new_col.itersplit(art_sep_word):
+        for j, num_art in new_col.itersplit(art_sep_word_name):
             yield j
 
 
@@ -110,7 +113,7 @@ def par(col): #итерирование по пунктам
 
 def iter_by_docs(docs, dir, iter_by, it): #итерирование по документам, в параметрах по чему итерироваться(iter_by), и что именно нужно сделать при итерировании -- вернуть словарь(it=0) или постепенно каждую часть(it=1)
     doc_id = docs[docs.find('_') + 1: docs.find('.')]
-    f = open(dir + '/' + docs, 'r', encoding='utf-8')
+    f = open(os.path.join(dir, docs), 'r')
     file = f.read()
     c = Collection(file)
     if it == 0:
@@ -120,8 +123,6 @@ def iter_by_docs(docs, dir, iter_by, it): #итерирование по док�
             return iter_by_par(c, doc_id)
         elif iter_by == 'article':
             return iter_by_art(c, doc_id)
-        elif iter_by == 'art_no_chp':
-            return iter_by_art_no_chp(c, doc_id)
         else:
             print("MISTAKE")
             return
@@ -134,26 +135,26 @@ def iter_by_docs(docs, dir, iter_by, it): #итерирование по док�
             return art(c)
         elif iter_by == 'art_name':
             return art_name(c, doc_id)
+        elif iter_by == 'art_name2':
+            return art_name2(c, doc_id)
         else:
             print("MISTAKE")
             return
 
 
-def iter_pravoved(docs): #итерирование по документам, в параметрах по чему итерироваться(iter_by), и что именно нужно сделать при итерировании -- вернуть словарь(it=0) или постепенно каждую часть(it=1)
-    doc_id = docs[docs.find('_') + 1: docs.find('.')]
-    f = open(docs, 'r', encoding='utf-8')
+def iter_pravoved(docs):
+    doc_id = docs[docs.rfind('_') + 1: docs.find('.')]
+    f = open(docs, 'r')
     file = f.read()
     c = Collection(file)
-    return iter_by_art_no_chp(c, doc_id)
+    return iter_by_art(c, doc_id)
+
 
 
 '''
-names = iter_by_docs("codex_1.txt", "codexes", 'art_name', 1)       #Возвращает словарь, где ключ -- пара (документ, статья), значение  -- название статьи
+names, _ = iter_by_docs("codex_1.txt", "/Users/anastasia/PycharmProjects/find_norm/codexes", 'article', 0)       #Возвращает словарь, где ключ -- пара (документ, статья), значение  -- название статьи
 print(names.keys())
-
 '''
-
-
 
 '''
 file = open("codexes/codex_1.txt", 'r')

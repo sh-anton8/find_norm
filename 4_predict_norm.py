@@ -28,6 +28,6 @@ searcher.request_processing_pravoved_fmerRelev(fnCollectionDir)
 # Пример поиска основанного на TFIDF
 
 '''
-tfidf_searcher = TFIDF_Search(tokenize_docs.Tokenizer(''), fnTFIDFCodex2Article)
+tfidf_searcher = TFIDF_Search(tokenize_docs.Tokenizer('text'), fnTFIDFCodex2Article)
 tfidf_searcher.request_processing_pravoved(fnCollectionDir, 5)
 '''

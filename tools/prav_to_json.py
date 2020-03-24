@@ -167,9 +167,9 @@ def codexes_to_json(codex_directory):
             for n in co.norm:
                 co.cod_norm.append([*co.codex, n])
 
-    pic = open('pravoved_to_json.txt', 'w', encoding='utf-8')
-    for co in codexes_out:
-        ans_dict = {}
+    pic = open('pravoved_to_json.json', 'w', encoding='utf-8')
+    ans_dict = {}
+    for j, co in enumerate(codexes_out):
         new_codnorm = set()
         codnorm = co.cod_norm
         for cn in codnorm:
@@ -179,18 +179,18 @@ def codexes_to_json(codex_directory):
                 if (str(c), norm) in set_numbers:
                     new_codnorm.add((nc.name_codexes[c].lower(), 'ст ' + norm[:-1]))
         co.cod_norm = list(new_codnorm)
-        ans_dict["Question"] = co.question
-        ans_dict["Answer_Lawyer"] = co.answer
+        ans_dict[j] = dict()
+        ans_dict[j]["Question"] = co.question
+        ans_dict[j]["Answer_Lawyer"] = co.answer
         for i in range(len(co.cod_norm)):
             co.cod_norm[i] = ' '.join(co.cod_norm[i])
-        ans_dict["Answer"] = ', '.join(co.cod_norm)
-        print(ans_dict)
-        json.dump(ans_dict, pic, ensure_ascii=False, indent=2)
-        pic.write('\n\n')
-    print(len(codexes_out))
-
+        ans_dict[j]["Answer"] = ', '.join(co.cod_norm)
+        #json.dump(ans_dict, pic, ensure_ascii=False, indent=2)
+        #pic.write('\n\n')
+    json.dump(ans_dict, pic, indent=2)
 
 codexes_to_json("codexes")
+
 
 #norms_codexes_to_normal("codexes")
 

@@ -4,6 +4,7 @@ import re
 import tools.coll as coll
 import os
 
+
 class Request:
     def __init__(self, theme, question, answer):
         self.theme = theme
@@ -15,7 +16,6 @@ class Request:
     def __str__(self):
         return 'question:{}\n\nanswer:{}\n\nnorm: {}\ncodex: {}\n-------------\n'\
             .format(self.question, self.answer, self.norm, self.codex)
-
 
 
 class Separator:
@@ -71,34 +71,29 @@ class Separator:
                 codexes_requests.append(r)
 
 
-
 codexes_requests = []
-s = Separator("pravoved_articles.txt")
+
+s = Separator("../pravoved_articles.txt")
 s.fill_requests()
 
+'''
+print(len(codexes_requests))
+'''
 
 def dict_codexes_creator():
     codexes = dict()
     codexes[('нк', 'налог')] = [1, 2]
-    codexes[('гк', 'граждан')] = [3, 4, 5]
-    codexes[('коап', 'администрат')] = [7]
-    codexes[('земел', 'зк')] = [8]
-    codexes[('тк', 'трудов')] = [9]
-    codexes[('жилищ', 'жк')] = [11]
-    codexes[('бюджет', 'бк')] = [12]
-    codexes[('процессуальн', 'упк')] = [14]
+    codexes[('гк', 'граждан')] = [3, 4, 5, 6]
+    codexes[('тк', 'трудов')] = [7]
+    codexes[('коап', 'администрат')] = [8]
+    codexes[('земел', 'зк')] = [9]
+    codexes[('жилищ', 'жк')] = [12]
+    codexes[('апк', 'арбитраж')] = [14]
     codexes[('уголов', 'ук')] = [16]
-    codexes[('лесн', 'лк')] = [19]
     codexes[('семейн', 'ск')] = [17]
-    codexes[('водн', 'вк')] = [20]
-    codexes[('гпк')] = [21]
-    codexes[('ктм')] = [22]
-    codexes[('уик')] = [23]
-    codexes[('апк', 'арбитраж')] = [24]
-    codexes[('воздушн', 'взк')] = [25]
-    codexes[('кввт')] = [26]
-    codexes[('тк', 'таможен')] = [912]
-    codexes[('грк', 'градостроит')] = [916]
+    codexes[('процессуальн', 'упк')] = [20]
+    codexes[('водн', 'вк')] = [23]
+    codexes[('лесн', 'лк')] = [26]
     poss_codexes = ['тк', 'кввт', 'воздушн', 'взк', 'нк', 'налог', 'гк', 'граждан',
                     'коап', 'администрат', 'земел', 'зк', 'тк', 'трудов', 'жилищ', 'жк',
                     'бюджет', 'бк', 'процессульальн', 'упк', 'уголовн', 'ук', 'лесн', 'лк',
@@ -117,45 +112,36 @@ def norms_codexes_to_normal(codex_directory):
             continue
         for n in names:
             if type(n) is tuple:
-                if cr.codex[0].find(n[0]) != -1 or cr.codex[0].find(n[1]) != -1:
+                if str(cr.codex[0]).find(n[0]) != -1 or str(cr.codex[0]).find(n[1]) != -1:
                     finded = 1
             else:
-                if cr.codex[0].find(n) != -1:
+                if str(cr.codex[0]).find(n) != -1:
                     finded = 1
             if finded == 1:
                 cr.codex = codexes[n]
                 codexes_out.append(cr)
                 break
 
-
     for co in codexes_out:
         co_norm1 = re.search('\d+[\.\d]*', co.norm[0])[0]
-        if not co_norm1.endswith('.'):
-            co_norm1 += '.'
+        if co_norm1.endswith('.'):
+            co_norm1 = co_norm1[:-1]
         co.norm = co_norm1
-
 
     set_numbers = set()
     for files in os.listdir(codex_directory):
         file_path = os.path.join(codex_directory, files)
         a, b = coll.iter_pravoved(file_path)
         set_numbers.update(list(a.keys()))
-
     for co in codexes_out:
         for cod in co.codex:
             if (str(cod), co.norm) in set_numbers:
                 co.codex = str(cod)
-                co.norm = co.norm[:-1]
 
     #for co in codexes_out:
         #print(co)
 
     return codexes_out
-
-
-#norms_codexes_to_normal("codexes")
-
-
 '''
 coll.iter_by_docs()
 for co in codexes_out:

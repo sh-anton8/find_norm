@@ -29,7 +29,6 @@ class InvIndex():
             self.text_to_num.update(d2)
             self.num_to_name.update(coll.iter_by_docs(file, self.dir, 'art_name', 1))
 
-
     def num_tokens_dict_builder(self):
         for key in list(self.num_to_text.keys()):
             self.tokenizer.text = self.num_to_text[key]
@@ -53,7 +52,6 @@ class InvIndex():
             t.update(1)
         t.close()
 
-
     # сохраняем весь объект
     def save(self, file):
         print('Saving index to: {file}')
@@ -64,6 +62,6 @@ class InvIndex():
     # для этого используем модификатор @staticmethod
     @staticmethod
     def load(file):
-        print('Loadinf index from: {file}')
+        print('Loading index from: {file}')
         with open(file, 'rb') as f:
             return pickle.load(f)

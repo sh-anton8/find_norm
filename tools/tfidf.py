@@ -6,9 +6,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from tools.inverse_index import InvIndex
 from tqdm import tqdm
 
-class TFIDF():
-    def __init__(self, inverse_index_pickle, ngramm=(1, 1)):
-        self.vectorizer = TfidfVectorizer(preprocessor=None, encoding='utf-8', ngram_range=ngramm)
+
+class TFIDF:
+    def __init__(self, inverse_index_pickle, ngramm=(1, 1), norm='l2', use_idf=True,
+                 sublinear_tf=False):
+        self.vectorizer = TfidfVectorizer(preprocessor=None, encoding='utf-8', ngram_range=ngramm,
+                                          norm=norm, use_idf=use_idf, sublinear_tf=sublinear_tf)
         self.tfidf_matrix = np.array([])
         self.num_to_num_dict = {}
         self.inverse_index = InvIndex.load(inverse_index_pickle)

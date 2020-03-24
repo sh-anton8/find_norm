@@ -6,7 +6,6 @@ from pymorphy2 import MorphAnalyzer
 from collections import Counter
 import tools.tfidf as tf
 from nltk.corpus import stopwords
-import tools.requests_recognizer as request_recognizer
 import tools.inverse_index as ii
 import numpy as np
 import tools.tfidf as tfidf

@@ -9,7 +9,7 @@ fnIdxCodex2Article = "idx/codex2article.pickle"
 
 # файл, куда будет сохраняться (или где уже сохранен) объект класса InvIndex
 # перед поиском рекомендуется удалять имеющийся файл и считать заново (иначе могут быть проблемы в директориях)
-fnTFIDFCodex2Article = "tfidf/tdidf_codex2article.pickle"
+fnTFIDFCodex2Article = "tf_idf/tdidf_codex2article.pickle"
 
 # если объект уже создан, то строить нет смысла
 # иначе строим и сохраняем объект класса InvIndex по директории fnIdxCodex2Article
