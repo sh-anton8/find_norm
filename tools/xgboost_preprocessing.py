@@ -50,7 +50,7 @@ def tfidf_cnt(ngramm: tp.Tuple[int, int], inv_ind_path: str, tfidf_path: str, nu
 
 
 def cos_simil(reqst: prav_rec.Request, tf_idf_path: str):
-    # считает косинусовую сумму
+    # считает косинусовую меру
     tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), tf_idf_path)
     return tfidf_searcher.cnt_cosine_similarity(reqst.question)
 
@@ -71,13 +71,13 @@ def get_features(path_to_tfidf_files: str, reqst: prav_rec.Request) -> tp.List[n
     all_tfidf = []
     cos_simil = [None] * 6
     for i in range(6):
-        all_tfidf.append(search.TFIDF_Search(tokenize_docs.Tokenizer('text'), os.path.join(path_to_tfidf_files, "tf_idf_{i + 1}")))
+        all_tfidf.append(search.TFIDF_Search(tokenize_docs.Tokenizer('text'), os.path.join(path_to_tfidf_files, f"tf_idf_{i + 1}")))
     for i, tfidfs in enumerate(all_tfidf):
         cos_simil[i] = tfidfs.cnt_cosine_similarity(reqst.question) #shape (6322, 1)
     return cos_simil
 
 #build_all_indexes_and_tf_idf()
-all_features = [[None] * 6322 for i in range(7)]
+all_features = [[None] * 6322 for i in range(9)]
 r = prav_rec.Request('a', 'я мать одиночка и временно не работаю. единственный доход на проживание это пособие с биржи труда. поэтому возникла задолженость', 'a')
 inv_index = ii.InvIndex.load("inv_ind")
 feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
@@ -86,5 +86,7 @@ for i in range(len(tfidf_file.num_to_num_dict.keys())):
     all_features[0][i] = feature.get_bm25_feature(r.question, tfidf_file.num_to_num_dict[i])
     all_features[1][i] = feature.get_fmerRelev_feature(r.question, tfidf_file.num_to_num_dict[i])
     all_features[2][i] = feature.get_doc_len_feature(r.question, tfidf_file.num_to_num_dict[i])
-print(*all_features[2])
+cos_simils = get_features("../tf_idf", r)
+for i, cs in enumerate(cos_simils):
+    all_features[i + 3] = [el[0] for el in cs]
 
