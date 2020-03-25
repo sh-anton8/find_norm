@@ -1,12 +1,16 @@
+import numpy as np
 import typing as tp
+import os
+import random
+import xgboost as xgb
+from xgboost import DMatrix
+import sklearn
 import tools.pravoved_recognizer as prav_rec
 import tools.coll as coll
-import os
 import tools.tokenize_docs as tokenize_docs
 from tools import search
 from tools import tfidf
 from tools import inverse_index as ii
-import numpy as np
 import features
 
 pravoved_requests = prav_rec.norms_codexes_to_normal("../codexes")
@@ -66,6 +70,12 @@ def build_all_indexes_and_tf_idf() -> None:
     tfidf_cnt((1, 1), "inv_ind", "../tf_idf/tf_idf", 6, sublinear_tf=True)
 
 
+def is_article_relev(r: prav_rec.Request, art: tp.Tuple[str, str]) -> bool:
+    if (str(r.codex), str(r.norm)) == art:
+        return True
+    return False
+
+
 def get_features(path_to_tfidf_files: str, reqst: prav_rec.Request) -> tp.List[np.array]:
     # строит косинусовую меру для посчитанных tfidf
     all_tfidf = []
@@ -77,16 +87,78 @@ def get_features(path_to_tfidf_files: str, reqst: prav_rec.Request) -> tp.List[n
     return cos_simil
 
 #build_all_indexes_and_tf_idf()
-all_features = [[None] * 6322 for i in range(9)]
-r = prav_rec.Request('a', 'я мать одиночка и временно не работаю. единственный доход на проживание это пособие с биржи труда. поэтому возникла задолженость', 'a')
-inv_index = ii.InvIndex.load("inv_ind")
-feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
-tfidf_file = tfidf.TFIDF.load("../tf_idf/tf_idf_1")
-for i in range(len(tfidf_file.num_to_num_dict.keys())):
-    all_features[0][i] = feature.get_bm25_feature(r.question, tfidf_file.num_to_num_dict[i])
-    all_features[1][i] = feature.get_fmerRelev_feature(r.question, tfidf_file.num_to_num_dict[i])
-    all_features[2][i] = feature.get_doc_len_feature(r.question, tfidf_file.num_to_num_dict[i])
-cos_simils = get_features("../tf_idf", r)
-for i, cs in enumerate(cos_simils):
-    all_features[i + 3] = [el[0] for el in cs]
+
+
+def find_feautures_for_request(req_num: int, request: prav_rec.Request, path_to_featute_file: str,
+                               is_train=False):
+    #записывает целевую переменную и признаки данного признака в файл
+    with open(path_to_featute_file, 'a+') as x:
+        all_features_for_request = [[0] * 6322 for _ in range(9)]
+        feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
+        tfidf_file = tfidf.TFIDF.load("../tf_idf/tf_idf_1")
+        for i in range(len(tfidf_file.num_to_num_dict.keys())):
+            all_features_for_request[0][i] = feature.get_bm25_feature(request.question, tfidf_file.num_to_num_dict[i])
+            #all_features_for_request[1][i] = feature.get_fmerRelev_feature(request.question, tfidf_file.num_to_num_dict[i])
+            all_features_for_request[2][i] = feature.get_doc_len_feature(request.question, tfidf_file.num_to_num_dict[i])
+        cos_simils = get_features("../tf_idf", request)
+        for i, cs in enumerate(cos_simils):
+            all_features_for_request[i + 3] = [el[0] for el in cs]
+        for i in range(6322):
+            is_relev = is_article_relev(request, tfidf_file.num_to_num_dict[i])
+            if is_train:
+                if is_relev:
+                    x.write('1 ')
+                else:
+                    x.write('0 ')
+            #x.write(f'qid: {req_num + 1} ')
+            for j in range(9):
+                x.write(f'{j + 1}:{all_features_for_request[j][i]}')
+                if j != 8:
+                    x.write(' ')
+            x.write('\n')
+
+
+def create_group_file(requests_list: str, path_to_file: str) -> None:
+    # создает group file (распределение статей по запросам)
+    with open(path_to_file, 'w+') as f:
+        for i in range(len(requests_list)):
+            f.write('6322\n')
+
+if os.path.exists('req_x.txt'):
+    os.remove('req_x.txt')
+if os.path.exists('req_y.txt'):
+    os.remove('req_y.txt')
+if os.path.exists('req_x_test.txt'):
+    os.remove('req_x_test.txt')
+
+
+random.shuffle(pravoved_requests)
+train_pravoved_requests = pravoved_requests[:1]
+test_pravoved_requests = pravoved_requests[1:2]
+
+for i, req in enumerate(train_pravoved_requests):
+    find_feautures_for_request(i, req, "req_x.txt", is_train=True)
+
+for i, req in enumerate(train_pravoved_requests):
+    find_feautures_for_request(i, req, "req_x_test.txt", is_train=True)
+x_train, y_train = sklearn.datasets.load_svmlight_file('req_x.txt')
+x_test, y_test = sklearn.datasets.load_svmlight_file('req_x_test.txt')
+train_dmatrix = DMatrix(x_train, y_train)
+test_dmatrix = DMatrix(x_test)
+create_group_file(train_pravoved_requests, "gr_train.txt")
+create_group_file(test_pravoved_requests, "gr_test.txt")
+group_train = []
+with open("gr_train.txt", "r") as f:
+    data = f.readlines()
+    for line in data:
+        group_train.append(int(line.split("\n")[0]))
+
+train_dmatrix.set_group(group_train)
+params = {'objective': 'rank:ndcg', 'eta': 0.1, 'gamma': 1.0,
+          'min_child_weight': 0.1, 'max_depth': 6}
+xgb_model = xgb.train(params, train_dmatrix, num_boost_round=4)
+pred = xgb_model.predict(test_dmatrix)
+for p in pred:
+    print(p)
+
 

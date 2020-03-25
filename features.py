@@ -3,7 +3,6 @@ from tools.bm25 import My_BM
 from collections import Counter
 import os
 
-
 class Features:
     def __init__(self, inv_ind_pickle, bm_25_file):
         self.inv_ind = InvIndex.load(inv_ind_pickle)

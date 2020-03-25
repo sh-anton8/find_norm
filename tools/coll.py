@@ -143,7 +143,7 @@ def iter_by_docs(docs, dir, iter_by, it): #итерирование по док�
 
 
 def iter_pravoved(docs):
-    doc_id = docs[docs.rfind('_') + 1: docs.find('.')]
+    doc_id = docs[docs.rfind('_') + 1: docs.rfind('.')]
     f = open(docs, 'r')
     file = f.read()
     c = Collection(file)

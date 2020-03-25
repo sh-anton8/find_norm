@@ -136,7 +136,7 @@ def norms_codexes_to_normal(codex_directory):
     for co in codexes_out:
         for cod in co.codex:
             if (str(cod), co.norm) in set_numbers:
-                co.codex = str(cod)
+                co.codex = ''.join(str(c) for c in co.codex)
 
     #for co in codexes_out:
         #print(co)
