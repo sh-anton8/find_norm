@@ -53,9 +53,8 @@ def tfidf_cnt(ngramm: tp.Tuple[int, int], inv_ind_path: str, tfidf_path: str, nu
     mod.save(tfidf_path + '_' + str(num))
 
 
-def cos_simil(reqst: prav_rec.Request, tf_idf_path: str):
+def cos_simil(reqst: prav_rec.Request, tfidf_searcher: search.TFIDF_Search):
     # считает косинусовую меру
-    tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), tf_idf_path)
     return tfidf_searcher.cnt_cosine_similarity(reqst.question)
 
 
@@ -76,12 +75,21 @@ def is_article_relev(r: prav_rec.Request, art: tp.Tuple[str, str]) -> bool:
     return False
 
 
-def get_features(path_to_tfidf_files: str, reqst: prav_rec.Request) -> tp.List[np.array]:
+def get_features(path_to_tfidf_files) -> tp.List[np.array]:
     # строит косинусовую меру для посчитанных tfidf
     all_tfidf = []
-    cos_simil = [None] * 6
     for i in range(6):
         all_tfidf.append(search.TFIDF_Search(tokenize_docs.Tokenizer('text'), os.path.join(path_to_tfidf_files, f"tf_idf_{i + 1}")))
+    return all_tfidf
+
+
+all_tfidf = get_features("../tf_idf")
+feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
+tfidf_file = tfidf.TFIDF.load("../tf_idf/tf_idf_1")
+
+
+def get_features(reqst: prav_rec.Request) -> tp.List[np.array]:
+    cos_simil = [None] * 6
     for i, tfidfs in enumerate(all_tfidf):
         cos_simil[i] = tfidfs.cnt_cosine_similarity(reqst.question) #shape (6322, 1)
     return cos_simil
@@ -94,13 +102,11 @@ def find_feautures_for_request(req_num: int, request: prav_rec.Request, path_to_
     #записывает целевую переменную и признаки данного признака в файл
     with open(path_to_featute_file, 'a+') as x:
         all_features_for_request = [[0] * 6322 for _ in range(9)]
-        feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
-        tfidf_file = tfidf.TFIDF.load("../tf_idf/tf_idf_1")
         for i in range(len(tfidf_file.num_to_num_dict.keys())):
             all_features_for_request[0][i] = feature.get_bm25_feature(request.question, tfidf_file.num_to_num_dict[i])
             #all_features_for_request[1][i] = feature.get_fmerRelev_feature(request.question, tfidf_file.num_to_num_dict[i])
             all_features_for_request[2][i] = feature.get_doc_len_feature(request.question, tfidf_file.num_to_num_dict[i])
-        cos_simils = get_features("../tf_idf", request)
+        cos_simils = get_features(request)
         for i, cs in enumerate(cos_simils):
             all_features_for_request[i + 3] = [el[0] for el in cs]
         for i in range(6322):
@@ -133,8 +139,8 @@ if os.path.exists('req_x_test.txt'):
 
 
 random.shuffle(pravoved_requests)
-train_pravoved_requests = pravoved_requests[:2]
-test_pravoved_requests = pravoved_requests[2:3]
+train_pravoved_requests = pravoved_requests[:15]
+test_pravoved_requests = pravoved_requests[7:8]
 
 for i, req in enumerate(train_pravoved_requests):
     find_feautures_for_request(i, req, "req_x.txt", is_train=True)
