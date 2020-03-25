@@ -133,14 +133,15 @@ if os.path.exists('req_x_test.txt'):
 
 
 random.shuffle(pravoved_requests)
-train_pravoved_requests = pravoved_requests[:1]
-test_pravoved_requests = pravoved_requests[1:2]
+train_pravoved_requests = pravoved_requests[:2]
+test_pravoved_requests = pravoved_requests[2:2]
 
 for i, req in enumerate(train_pravoved_requests):
     find_feautures_for_request(i, req, "req_x.txt", is_train=True)
 
-for i, req in enumerate(train_pravoved_requests):
+for i, req in enumerate(test_pravoved_requests):
     find_feautures_for_request(i, req, "req_x_test.txt", is_train=True)
+
 x_train, y_train = sklearn.datasets.load_svmlight_file('req_x.txt')
 x_test, y_test = sklearn.datasets.load_svmlight_file('req_x_test.txt')
 train_dmatrix = DMatrix(x_train, y_train)
@@ -154,11 +155,11 @@ with open("gr_train.txt", "r") as f:
         group_train.append(int(line.split("\n")[0]))
 
 train_dmatrix.set_group(group_train)
+print(group_train)
 params = {'objective': 'rank:ndcg', 'eta': 0.1, 'gamma': 1.0,
           'min_child_weight': 0.1, 'max_depth': 6}
 xgb_model = xgb.train(params, train_dmatrix, num_boost_round=4)
 pred = xgb_model.predict(test_dmatrix)
-for p in pred:
-    print(p)
+print(pred.shape)
 
 
