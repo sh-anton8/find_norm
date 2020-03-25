@@ -134,7 +134,7 @@ if os.path.exists('req_x_test.txt'):
 
 random.shuffle(pravoved_requests)
 train_pravoved_requests = pravoved_requests[:2]
-test_pravoved_requests = pravoved_requests[2:2]
+test_pravoved_requests = pravoved_requests[2:3]
 
 for i, req in enumerate(train_pravoved_requests):
     find_feautures_for_request(i, req, "req_x.txt", is_train=True)
