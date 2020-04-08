@@ -14,8 +14,8 @@ class Request:
         self.codex = []
 
     def __str__(self):
-        return 'question:{}\n\nanswer:{}\n\nnorm: {}\ncodex: {}\n-------------\n'\
-            .format(self.question, self.answer, self.norm, self.codex)
+        return 'question:{}\n\nanswer:{}\n\ncodex: {}\nnorm: {}\n-------------\n'\
+            .format(self.question, self.answer, self.codex, self.norm)
 
 
 class Separator:
@@ -73,7 +73,7 @@ class Separator:
 
 codexes_requests = []
 
-s = Separator("../pravoved_articles.txt")
+s = Separator("pravoved_articles.txt")
 s.fill_requests()
 
 '''
@@ -136,7 +136,7 @@ def norms_codexes_to_normal(codex_directory):
     for co in codexes_out:
         for cod in co.codex:
             if (str(cod), co.norm) in set_numbers:
-                co.codex = ''.join(str(c) for c in co.codex)
+                co.codex = str(cod)
 
     #for co in codexes_out:
         #print(co)

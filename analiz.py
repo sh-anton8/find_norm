@@ -1,4 +1,4 @@
-import search as search
+import tools.search as search
 import tools.pravoved_recognizer as pravoved_recognizer
 import tools.tokenize_docs as tokenize_docs
 import matplotlib.pyplot as plt
@@ -8,13 +8,14 @@ import math
 x = []
 y_codex = []
 y_articles = []
-
-tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), "tfidf(1_1)_codexes_for_article_pickle")
+'''
+tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), "tf_idf/tf_idf_1")
 pravoved = pravoved_recognizer.norms_codexes_to_normal("codexes")
-
+'''
 
 def top_n_cover(in_percent): # аргумент позволяет выводить график в процентах
     for i in range(1, 101, 2):
+        print(1)
         codex = 0
         article = 0
         both = 0
@@ -25,7 +26,7 @@ def top_n_cover(in_percent): # аргумент позволяет выводи�
             for ans in answers:
                 if ans[0][0] == pr.codex:
                     cod = 1
-                if ans[0][2] == pr.norm:
+                if ans[0][1] == pr.norm:
                     art = 1
             if cod == 1 and art == 1:
                 both += 1
@@ -58,11 +59,11 @@ def top_n_cover(in_percent): # аргумент позволяет выводи�
         plt.legend()
         plt.show()
 
-
+'''
 answers = [0] * len(pravoved)
 for i in range(len(pravoved)):
     answers[i] = tfidf_searcher.request_processing_input_without_print2(pravoved[i].question)
-
+'''
 
 def ap_k(relev_positions, k):
     print(relev_positions, k)
@@ -78,13 +79,13 @@ def ap_k(relev_positions, k):
     return ans
 
 
-def map_k():
+def map_k(pravoved, answers):
     apk = [0] * 50
     for j in range(len(pravoved)):
         actual_art = [(pravoved[j].codex, pravoved[j].norm)]
         predicted_art = []
         for ans in answers[j][:101]:
-            predicted_art.append((ans[0][0], ans[0][2]))
+            predicted_art.append((ans[0][0], ans[0][1]))
         relev_positions = []
         for i, pa in enumerate(predicted_art):
             if pa in actual_art:
@@ -105,20 +106,21 @@ def map_k():
     plt.show()
 
 
-def ndcg():
+def ndcg(pravoved, answers):
     for i in range(2, 101, 2):
         sum_ndcg = 0
+        print(len(pravoved))
         for j in range(len(pravoved)):
             answ = answers[j][:i]
             scores = []
             ndcg = 0
             for ans in answ:
-                if (pravoved[j].codex, pravoved[j].norm) == (ans[0][0], ans[0][2]):
+                if (pravoved[j].codex, pravoved[j].norm) == (ans[0][0], ans[0][1]):
                     scores.append(1)
                 else:
                     scores.append(0)
-            for i in range(1, len(scores) + 1):
-                ndcg += scores[i - 1] / math.log(i + 1, 2)
+            for k in range(1, len(scores) + 1):
+                ndcg += scores[k - 1] / math.log(k + 1, 2)
             sum_ndcg += ndcg
         print(sum_ndcg / len(pravoved))
         x.append(i)
@@ -131,19 +133,23 @@ def ndcg():
     plt.savefig('ndcg.png')
     plt.show()
 
+
 def mrr_k(relev_positions, k):
     for rl in relev_positions:
         if rl < k:
             return 1/rl
     return 0
 
-def mrr():
+
+def mrr(pravoved, answers):
     mrr = [0] * 50
     for j in range(len(pravoved)):
+        print(pravoved[j].answer)
         actual_art = [(pravoved[j].codex, pravoved[j].norm)]
+        print(actual_art)
         predicted_art = []
         for ans in answers[j][:101]:
-            predicted_art.append((ans[0][0], ans[0][2]))
+            predicted_art.append((ans[0][0], ans[0][1]))
         relev_positions = []
         for i, pa in enumerate(predicted_art):
             if pa in actual_art:
@@ -154,15 +160,9 @@ def mrr():
     x = [i for i in range(1, 101, 2)]
     print(mrr)
 
-
-
     plt.plot(x, mrr, color='red', label='Статьи')
     plt.ylabel('MRR')
     plt.xlabel('Количество статей в топе')
     plt.legend()
     plt.savefig('mrr.png')
     plt.show()
-
-
-mrr()
-#ndcg()
