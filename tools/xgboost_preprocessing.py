@@ -144,8 +144,8 @@ def features_to_files():
         os.remove('gr_train.txt')
 
     # random.shuffle(pravoved_requests)
-    train_pravoved_requests = pravoved_requests[:3]
-    test_pravoved_requests = pravoved_requests[3:4]
+    train_pravoved_requests = pravoved_requests[:1250]
+    test_pravoved_requests = pravoved_requests[1251:]
     create_group_file(train_pravoved_requests, "gr_train.txt")
     create_group_file(test_pravoved_requests, "gr_test.txt")
 
