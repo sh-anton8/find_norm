@@ -3,7 +3,7 @@
 import re
 import tools.coll as coll
 import os
-
+import sys
 
 class Request:
     def __init__(self, theme, question, answer):
@@ -72,8 +72,8 @@ class Separator:
 
 
 codexes_requests = []
-
-s = Separator("../pravoved_articles.txt")
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+s = Separator(os.path.join(ROOT_DIR, '..', "pravoved_articles.txt"))
 s.fill_requests()
 
 '''

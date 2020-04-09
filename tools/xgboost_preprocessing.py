@@ -83,7 +83,7 @@ def get_features(path_to_tfidf_files) -> tp.List[np.array]:
         all_tfidf.append(search.TFIDF_Search(tokenize_docs.Tokenizer('text'), os.path.join(path_to_tfidf_files, f"tf_idf_{i + 1}")))
     return all_tfidf
 
-build_all_indexes_and_tf_idf()
+#build_all_indexes_and_tf_idf()
 all_tfidf = get_features("../tf_idf")
 feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
 tfidf_file = tfidf.TFIDF.load("../tf_idf/tf_idf_1")
@@ -144,8 +144,10 @@ def features_to_files():
         os.remove('gr_train.txt')
 
     # random.shuffle(pravoved_requests)
-    train_pravoved_requests = pravoved_requests[:1250]
-    test_pravoved_requests = pravoved_requests[1251:]
+    train_pravoved_requests = pravoved_requests[:3]
+    test_pravoved_requests = pravoved_requests[3:4]
+    create_group_file(train_pravoved_requests, "gr_train.txt")
+    create_group_file(test_pravoved_requests, "gr_test.txt")
 
     t = tqdm(total=len(train_pravoved_requests))
     for i, req in enumerate(train_pravoved_requests):
@@ -196,87 +198,6 @@ def predict_xgboost_answers(xgb_model):
     f.close()
 
 
-
-if os.path.exists('req_x.txt'):
-    os.remove('req_x.txt')
-if os.path.exists('req_y.txt'):
-    os.remove('req_y.txt')
-if os.path.exists('req_x_test.txt'):
-    os.remove('req_x_test.txt')
-if os.path.exists('gr_test.txt'):
-     os.remove('gr_test.txt')
-if os.path.exists('gr_train.txt'):
-     os.remove('gr_train.txt')
-
-
-#random.shuffle(pravoved_requests)
-train_pravoved_requests = pravoved_requests[:1250]
-test_pravoved_requests = pravoved_requests[1251:]
-
-t = tqdm(total=len(train_pravoved_requests))
-for i, req in enumerate(train_pravoved_requests):
-    find_feautures_for_request(i, req, "req_x.txt", is_train=True)
-    t.update(1)
-t.close()
-
-t = tqdm(total=len(test_pravoved_requests))
-for i, req in enumerate(test_pravoved_requests):
-    find_feautures_for_request(i, req, "req_x_test.txt", is_train=True)
-    t.update(1)
-t.close()
-
-x_train, y_train = sklearn.datasets.load_svmlight_file('req_x.txt')
-x_test, y_test = sklearn.datasets.load_svmlight_file('req_x_test.txt')
-train_dmatrix = DMatrix(x_train, y_train)
-test_dmatrix = DMatrix(x_test)
-create_group_file(train_pravoved_requests, "gr_train.txt")
-create_group_file(test_pravoved_requests, "gr_test.txt")
-group_train = []
-group_test = []
-with open("gr_train.txt", "r") as f:
-    data = f.readlines()
-    for line in data:
-        group_train.append(int(line.split("\n")[0]))
-
-with open("gr_test.txt", "r") as f:
-    data = f.readlines()
-    for line in data:
-        group_test.append(int(line.split("\n")[0]))
-
-
-train_dmatrix.set_group(group_train)
-test_dmatrix.set_group(group_test)
-
-print(group_train)
-print(group_test)
-
-
-x_train, y_train = sklearn.datasets.load_svmlight_file('req_x.txt')
-x_test, y_test = sklearn.datasets.load_svmlight_file('req_x_test.txt')
-train_dmatrix = DMatrix(x_train, y_train)
-test_dmatrix = DMatrix(x_test)
-group_train = []
-group_test = []
-with open("gr_train.txt", "r") as f:
-    data = f.readlines()
-    for line in data:
-        group_train.append(int(line.split("\n")[0]))
-
-with open("gr_test.txt", "r") as f:
-    data = f.readlines()
-    for line in data:
-        group_test.append(int(line.split("\n")[0]))
-
-params = {'objective': 'rank:pairwise', 'eta': 0.1, 'gamma': 1.0,
-          'min_child_weight': 0.1, 'max_depth': 6}
-xgb_model = xgb.train(params, train_dmatrix, num_boost_round=4)
-pred = xgb_model.predict(test_dmatrix)
-prediction_answer = []
-for i, p in enumerate(pred):
-    prediction_answer.append((p, tfidf_file.num_to_num_dict[i % 6322]))
-if os.path.exists("prediction_file.txt"):
-    os.remove("prediction_file.txt")
-f = open("prediction_file.txt", 'w+')
-predictions = [str(pred) for pred in prediction_answer]
-f.write('\n'.join(predictions))
-f.close()
+features_to_files()
+xgb_model = train_xgboost_model()
+predict_xgboost_answers(xgb_model)

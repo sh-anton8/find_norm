@@ -23,4 +23,4 @@ def read_predictions_from_file():
 predictions_by_queries = read_predictions_from_file()
 pravoved = pravoved_recognizer.norms_codexes_to_normal("codexes")
 
-analiz.ndcg(pravoved[1251:], predictions_by_queries)
+analiz.ndcg(pravoved[3:4], predictions_by_queries)
