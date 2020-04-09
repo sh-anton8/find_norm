@@ -83,7 +83,7 @@ def get_features(path_to_tfidf_files) -> tp.List[np.array]:
         all_tfidf.append(search.TFIDF_Search(tokenize_docs.Tokenizer('text'), os.path.join(path_to_tfidf_files, f"tf_idf_{i + 1}")))
     return all_tfidf
 
-
+build_all_indexes_and_tf_idf()
 all_tfidf = get_features("../tf_idf")
 feature = features.Features("../tools/inv_ind", "../files/my_bm_obj.pickle")
 tfidf_file = tfidf.TFIDF.load("../tf_idf/tf_idf_1")
@@ -95,7 +95,6 @@ def get_features(reqst: prav_rec.Request) -> tp.List[np.array]:
         cos_simil[i] = tfidfs.cnt_cosine_similarity(reqst.question) #shape (6322, 1)
     return cos_simil
 
-#build_all_indexes_and_tf_idf()
 
 
 def find_feautures_for_request(req_num: int, request: prav_rec.Request, path_to_featute_file: str,

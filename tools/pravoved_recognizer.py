@@ -73,7 +73,7 @@ class Separator:
 
 codexes_requests = []
 
-s = Separator("pravoved_articles.txt")
+s = Separator("../pravoved_articles.txt")
 s.fill_requests()
 
 '''
