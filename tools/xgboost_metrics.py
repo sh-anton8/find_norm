@@ -1,14 +1,17 @@
 import tools.pravoved_recognizer as pravoved_recognizer
 import analiz
+import os
+from tools.relative_paths_to_directories import path_to_directories
 
+PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
+    PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
 def read_predictions_from_file():
     predictions = []
-    with open("tools/prediction_file.txt", "r") as f:
-        data = f.readlines()
-        for line in data:
+    with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "prediction_file.txt"), "r") as f:
+        for line in f.readlines():
             line = line.replace('(', '').replace(')', '').replace(' ', ''). replace('\'', '').split('\n')[0].split(',')
-            predictions.append(((line[1], line[2]), float(line[0])))
+            predictions.append(((str(line[0]), str(line[1])), float(line[2])))
     predictions_by_queries = []
     i = 0
     j = 0
@@ -21,6 +24,6 @@ def read_predictions_from_file():
 
 
 predictions_by_queries = read_predictions_from_file()
-pravoved = pravoved_recognizer.norms_codexes_to_normal("codexes")
+pravoved = pravoved_recognizer.norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"))
 
-analiz.ndcg(pravoved[3:4], predictions_by_queries)
+analiz.ndcg(pravoved[3:5], predictions_by_queries)

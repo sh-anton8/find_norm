@@ -3,7 +3,11 @@
 import re
 import tools.coll as coll
 import os
-import sys
+
+from tools.relative_paths_to_directories import path_to_directories
+
+PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
+    PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
 class Request:
     def __init__(self, theme, question, answer):
@@ -49,6 +53,7 @@ class Separator:
         return codex_names
 
     def fill_requests(self):   #заполняет класс Request найденной нормой и названием кодекса
+        codexes_requests = []
         codexes = self.list_of_codexes()
         requests = self.sep_by_requests()
         reg_for_artcicle = ['стать[\w\.]*? [\d\.]*', 'ст\.\s?[\d\.]*']
@@ -69,12 +74,8 @@ class Separator:
                     r.codex.extend(abbr)
             if len(r.codex) == len(r.norm) == 1:
                 codexes_requests.append(r)
+        return codexes_requests
 
-
-codexes_requests = []
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-s = Separator(os.path.join(ROOT_DIR, '..', "pravoved_articles.txt"))
-s.fill_requests()
 
 '''
 print(len(codexes_requests))
@@ -101,8 +102,9 @@ def dict_codexes_creator():
     return codexes, poss_codexes
 
 
-
 def norms_codexes_to_normal(codex_directory):
+    s = Separator(os.path.join(PATH_TO_FILES, "pravoved_articles.txt"))
+    codexes_requests = s.fill_requests()
     codexes_out = []
     codexes, poss_codexes = dict_codexes_creator()
     names = list(codexes.keys())
@@ -133,18 +135,14 @@ def norms_codexes_to_normal(codex_directory):
         file_path = os.path.join(codex_directory, files)
         a, b = coll.iter_pravoved(file_path)
         set_numbers.update(list(a.keys()))
+
     for co in codexes_out:
         for cod in co.codex:
             if (str(cod), co.norm) in set_numbers:
                 co.codex = str(cod)
 
-    #for co in codexes_out:
-        #print(co)
+    for co in codexes_out:
+        if isinstance(co.codex, list):
+            del co
 
     return codexes_out
-'''
-coll.iter_by_docs()
-for co in codexes_out:
-    print(co)
-print(len(codexes_out))
-'''
