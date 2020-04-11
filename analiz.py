@@ -142,6 +142,7 @@ class Analizer:
         for i in range(2, K, 2):
             sum_ndcg = 0
             for j in range(len(self.sample)):
+                print(len(self.sample))
                 answ = self.answers[j][:i]
                 scores = []
                 ndcg = 0

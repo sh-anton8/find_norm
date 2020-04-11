@@ -19,4 +19,5 @@ def read_predictions_from_file():
         predictions_by_queries[j].extend(list(sorted(predictions[i:i + 6322], key= lambda x:x[1], reverse=True)))
         j += 1
         i += 6322
+    print(predictions_by_queries[0])
     return predictions_by_queries

@@ -1,6 +1,5 @@
 from tools.pravoved_recognizer import Request
 import typing as tp
-from tools import tfidf
 import os
 from tools.features import Features
 from tools import pravoved_recognizer
@@ -10,6 +9,7 @@ from tools.relative_paths_to_directories import path_to_directories, CNT_ARTICLE
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+
 
 FEATURES_NUM = 9
 
@@ -21,11 +21,9 @@ def is_article_relev(r: Request, art: tp.Tuple[str, str]) -> bool:
 
 
 def find_feautures_for_request(request: Request, path_to_featute_file: str,
-                               is_train=False):
+                               feature: Features, is_train=False):
     #записывает целевую переменную и признаки данного признака в файл
-    feature = Features(PATH_TO_INV_IND, PATH_TO_BM_25)
-    path_to_tf_idf = os.path.join(PATH_TO_TF_IDF, "tf_idf_1")
-    tfidf_file = tfidf.TFIDF.load(path_to_tf_idf)
+    tfidf_file = feature.first_tf_idf
     with open(path_to_featute_file, 'a+') as x:
         all_features_for_request = [[0] * CNT_ARTICLES for _ in range(FEATURES_NUM)]
         for i in range(len(tfidf_file.num_to_num_dict.keys())):
@@ -76,13 +74,16 @@ def features_to_files(train_sample: int, test_sample: int) -> None:
     create_group_file(test_pravoved_requests, os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"))
 
     t = tqdm(total=len(train_pravoved_requests))
+
+    feature = Features(PATH_TO_INV_IND, os.path.join(PATH_TO_FILES, "bm_25.pickle"))
+    feature.load_all_tfidf()
     for i, req in enumerate(train_pravoved_requests):
-        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_train.txt"), is_train=True)
+        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_train.txt"), feature, is_train=True)
         t.update(1)
     t.close()
 
     t = tqdm(total=len(test_pravoved_requests))
     for i, req in enumerate(test_pravoved_requests):
-        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_test.txt"), is_train=True)
+        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_test.txt"), feature, is_train=True)
         t.update(1)
     t.close()

@@ -3,22 +3,33 @@ from tools.bm25 import My_BM
 from collections import Counter
 import os
 from tools.pravoved_recognizer import Request
-from tools import tfidf
+from tools.tfidf import TFIDF
 import typing as tp
 from tools import search
 from tools import tokenize_docs
+from tools.tokenize_docs import Tokenizer
+from sklearn.metrics.pairwise import cosine_similarity
+from pymorphy2 import MorphAnalyzer
+from collections import Counter
+from nltk.corpus import stopwords
 
 from tools.relative_paths_to_directories import path_to_directories
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25, \
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
+
 class Features:
     def __init__(self, inv_ind_pickle, bm_25_file):
-        self.path_to_inv_ind = inv_ind_pickle
         self.inv_ind = InvIndex.load(inv_ind_pickle)
+        self.inv_in_path = inv_ind_pickle
+        self.cash = dict()
+        self.morph = MorphAnalyzer()
+        self.stop_words = stopwords.words("russian")
+        self.tfidfs = []
+        self.first_tf_idf = None
         if not os.path.isfile(bm_25_file):
-            self.bm_obj = My_BM(inv_ind_pickle)
+            self.bm_obj = My_BM(PATH_TO_INV_IND)
             self.bm_obj.save(bm_25_file)
         else:
             self.bm_obj = My_BM.load(bm_25_file)
@@ -55,7 +66,7 @@ class Features:
     def _tfidf_cnt(self, ngramm: tp.Tuple[int, int], inv_ind_path: str, tfidf_path: str, num: int,
                   norm: str = 'l2', use_idf: bool = True, sublinear_tf: bool = False) -> None:
         # считает tfidf по корпусу с параметрами
-        mod = tfidf.TFIDF(inv_ind_path, ngramm=ngramm, norm=norm, use_idf=use_idf, sublinear_tf=sublinear_tf)
+        mod = TFIDF(inv_ind_path, ngramm=ngramm, norm=norm, use_idf=use_idf, sublinear_tf=sublinear_tf)
         mod.count_tf_idf()
         mod.save(tfidf_path + '_' + str(num))
 
@@ -68,27 +79,39 @@ class Features:
         # считает все tfidf, чтобы впоследствии по ним посчитать косинусовую меру
         self.path_to_tf_idf = os.path.join(PATH_TO_TF_IDF, 'tf_idf')
         if self._if_file_not_exist(self.path_to_tf_idf, 1):
-            self._tfidf_cnt((1, 1), self.path_to_inv_ind, self.path_to_tf_idf, 1)
+            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 1)
         if self._if_file_not_exist(self.path_to_tf_idf, 2):
-            self._tfidf_cnt((3, 3), self.path_to_inv_ind , self.path_to_tf_idf, 2)
+            self._tfidf_cnt((3, 3), self.inv_in_path , self.path_to_tf_idf, 2)
         if self._if_file_not_exist(self.path_to_tf_idf, 3):
-            self._tfidf_cnt((1, 3), self.path_to_inv_ind , self.path_to_tf_idf, 3)
+            self._tfidf_cnt((1, 3), self.inv_in_path , self.path_to_tf_idf, 3)
         if self._if_file_not_exist(self.path_to_tf_idf, 4):
-            self._tfidf_cnt((1, 1), self.path_to_inv_ind, self.path_to_tf_idf, 4, norm='l1', use_idf=False)
+            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 4, norm='l1', use_idf=False)
         if self._if_file_not_exist(self.path_to_tf_idf, 5):
-            self._tfidf_cnt((1, 1), self.path_to_inv_ind, self.path_to_tf_idf, 5, use_idf=False, sublinear_tf=True)
+            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 5, use_idf=False, sublinear_tf=True)
         if self._if_file_not_exist(self.path_to_tf_idf, 6):
-            self._tfidf_cnt((1, 1), self.path_to_inv_ind, self.path_to_tf_idf, 6, sublinear_tf=True)
+            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 6, sublinear_tf=True)
+
+    def load_all_tfidf(self):
+        self._count_tf_idf()
+        for i, file in enumerate(sorted(os.listdir(PATH_TO_TF_IDF))):
+            tfidf_cnt = TFIDF.load(os.path.join(PATH_TO_TF_IDF, file))
+            if i == 1:
+                self.first_tf_idf = tfidf_cnt
+            self.tfidfs.append(tfidf_cnt)
 
     def features_cos_sim(self, req: Request):
         # считает косинусиновую меру для заданного запроса и посчитанных tf_idf
         cos_simil = [0] * 6
-        self._count_tf_idf()
-        for i, file in enumerate(os.listdir(PATH_TO_TF_IDF)):
-            print(file)
-            tfidf_cnt = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), os.path.join(PATH_TO_TF_IDF, file))
-            cos_simil[i] = tfidf_cnt.cnt_cosine_similarity(req.question)
+        for i in range(6):
+            cos_simil[i] = self._count_cos_similarity(req, self.tfidfs[i])
         return cos_simil
+
+    def _count_cos_similarity(self, req: Request, tfidf_loaded):
+        t = Tokenizer(req.question)
+        req = t.tokenize(self.cash, self.morph, self.stop_words)
+        req_tfidf_dict = tfidf_loaded.request_counting([" ".join(req)])
+        cos_sim = cosine_similarity(tfidf_loaded.tfidf_matrix, req_tfidf_dict)
+        return cos_sim
 
     def feature_art_name_intersection(self, art_name: str, req: Request) -> int:
         # количество слов из названия статьи, встретившихся в запросе

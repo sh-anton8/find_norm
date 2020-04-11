@@ -153,6 +153,7 @@ class ExpAnalizer():
                 ndcg = 0
                 for ans in answ:
                     right_ans = (str(self.sample[j].codex), self.sample[j].norm)
+                    print(right_ans, tuple(ans[0]))
                     if self.num_to_ind_dict.get(right_ans, -100) - self.epsilon <= self.num_to_ind_dict[
                         tuple(ans[0])] <= self.num_to_ind_dict.get(right_ans, -100) + self.epsilon:
                         scores.append(1)
