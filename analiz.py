@@ -18,14 +18,29 @@ import tools.pravoved_recognizer as pravoved_recognizer
 import tools.tokenize_docs as tokenize_docs
 import matplotlib.pyplot as plt
 import math
+import os
 
-class Analizer():
+from tools.relative_paths_to_directories import path_to_directories
+
+PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
+    PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+
+class Analizer:
     # sample - выборка (массив структур Запрос (request) из pravoved_recognizer.py)
     # answers - ответы модели (массив i эл-т которого - массив содержащий отсортированные по релевантности ответы на
     # i-ый запрос выборки в виде (номер в нашей нумерации, релевантность данной статьи))
     def __init__(self, answers, sample):
         self.sample = sample
         self.answers = answers
+
+    @staticmethod
+    def save_graphics(x, metric, ylabel: str, name_file: str):
+        plt.plot(x, metric, color='red', label='Статьи')
+        plt.ylabel(ylabel)
+        plt.xlabel('Количество статей в топе')
+        plt.legend()
+        plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', name_file))
+        plt.show()
 
     # n - верхняя граница на количество статей в топе
     def top_n_cover(self, n, in_percent = True):
@@ -86,8 +101,6 @@ class Analizer():
 
 
 
-
-
     @staticmethod
     def ap_k(relev_positions, k):
         print(relev_positions, k)
@@ -119,15 +132,7 @@ class Analizer():
         x = [i for i in range(1, K, 2)]
         print(apk)
 
-        plt.plot(x, apk, color='red', label='Статьи')
-        plt.ylabel('MAP(k)')
-        plt.xlabel('Количество статей в топе')
-        plt.legend()
-        plt.savefig('map.png')
-        plt.show()
-
-
-
+        self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map.png')
 
     def ndcg(self, K):
 
@@ -136,12 +141,12 @@ class Analizer():
 
         for i in range(2, K, 2):
             sum_ndcg = 0
-            print(len(self.sample))
             for j in range(len(self.sample)):
                 answ = self.answers[j][:i]
                 scores = []
                 ndcg = 0
                 for ans in answ:
+                    print(ans[0][0], ans[0][1], self.sample[j].codex, self.sample[j].norm)
                     if (self.sample[j].codex, self.sample[j].norm) == (ans[0][0], ans[0][1]):
                         scores.append(1)
                     else:
@@ -153,12 +158,7 @@ class Analizer():
             x.append(i)
             y_articles.append(sum_ndcg / len(self.sample))
 
-        plt.plot(x, y_articles, color='red', label='Статьи')
-        plt.ylabel('NDCG')
-        plt.xlabel('Количество статей в топе')
-        plt.legend()
-        plt.savefig('ndcg.png')
-        plt.show()
+        self.save_graphics(x=x, metric=y_articles, ylabel='NDCG', name_file='ndcg.png')
 
 
 
@@ -189,14 +189,7 @@ class Analizer():
         x = [i for i in range(1, K, 2)]
         print(mrr)
 
-        plt.plot(x, mrr, color='red', label='Статьи')
-        plt.ylabel('MRR')
-        plt.xlabel('Количество статей в топе')
-        plt.legend()
-        plt.savefig('mrr.png')
-        plt.show()
-
-
+        self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr.png')
 
 
 # Ниже приведен ПРИМЕР использования

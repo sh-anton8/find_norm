@@ -2,7 +2,7 @@ from tools.pravoved_recognizer import Request
 import typing as tp
 from tools import tfidf
 import os
-from features import Features
+from tools.features import Features
 from tools import pravoved_recognizer
 from tqdm import tqdm
 
@@ -61,7 +61,7 @@ def delete_if_exist(path_to_file: str) -> None:
         os.remove(path_to_file)
 
 
-def features_to_files(cnt_sample: int) -> None:
+def features_to_files(train_sample: int, test_sample: int) -> None:
     delete_if_exist(os.path.join(PATH_TO_LEARNING_TO_RANK, 'x_train.txt'))
     delete_if_exist(os.path.join(PATH_TO_LEARNING_TO_RANK, 'x_test.txt'))
     delete_if_exist(os.path.join(PATH_TO_LEARNING_TO_RANK, 'gr_train.txt'))
@@ -70,8 +70,8 @@ def features_to_files(cnt_sample: int) -> None:
     # random.shuffle(pravoved_requests)
 
     pravoved_requests = pravoved_recognizer.norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"))
-    train_pravoved_requests = pravoved_requests[:cnt_sample]
-    test_pravoved_requests = pravoved_requests[cnt_sample:5]
+    train_pravoved_requests = pravoved_requests[:train_sample]
+    test_pravoved_requests = pravoved_requests[train_sample:test_sample]
     create_group_file(train_pravoved_requests, os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_train.txt"))
     create_group_file(test_pravoved_requests, os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"))
 
