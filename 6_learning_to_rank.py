@@ -3,8 +3,8 @@ import os
 
 from tools.relative_paths_to_directories import path_to_directories
 
-TRAIN_SAMPLE = 10
-TEST_SAMPLE = 13
+TRAIN_SAMPLE = 5
+TEST_SAMPLE = 10
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())

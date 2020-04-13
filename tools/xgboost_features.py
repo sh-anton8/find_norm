@@ -42,7 +42,7 @@ def find_feautures_for_request(request: Request, path_to_featute_file: str,
                     x.write('0 ')
             for j in range(FEATURES_NUM):
                 x.write(f'{j + 1}:{all_features_for_request[j][i]}')
-                if j != 8:
+                if j != FEATURES_NUM - 1:
                     x.write(' ')
             x.write('\n')
 
@@ -68,15 +68,17 @@ def features_to_files(train_sample: int, test_sample: int) -> None:
     # random.shuffle(pravoved_requests)
 
     pravoved_requests = pravoved_recognizer.norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"))
+
     train_pravoved_requests = pravoved_requests[:train_sample]
     test_pravoved_requests = pravoved_requests[train_sample:test_sample]
+
     create_group_file(train_pravoved_requests, os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_train.txt"))
     create_group_file(test_pravoved_requests, os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"))
 
-    t = tqdm(total=len(train_pravoved_requests))
-
     feature = Features(PATH_TO_INV_IND, os.path.join(PATH_TO_FILES, "bm_25.pickle"))
     feature.load_all_tfidf()
+
+    t = tqdm(total=len(train_pravoved_requests))
     for i, req in enumerate(train_pravoved_requests):
         find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_train.txt"), feature, is_train=True)
         t.update(1)

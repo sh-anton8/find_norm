@@ -2,7 +2,6 @@ import sklearn
 import xgboost
 import os
 from tools.relative_paths_to_directories import path_to_directories
-from xgboost import XGBRanker
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
@@ -26,6 +25,6 @@ def train_xgboost_model():
     params = {'objective': 'rank:ndcg', 'learning_rate': 0.1,
               'gamma': 1.0, 'min_child_weight': 0.1,
               'max_depth': 6, 'n_estimators': 4}
-    model = xgboost.sklearn.XGBRanker(**params)
+    model = xgboost.sklearn.XGBRanker(params='rank:ndcg')
     model.fit(x_train, y_train, group_train, verbose=True)
     return model
