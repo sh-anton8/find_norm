@@ -11,8 +11,8 @@ from tools.relative_paths_to_directories import path_to_directories
 Тренировочная и тестовая выборки в 6_learning_to_rank.py и 7_metrics_for_xgboost.py
 должны быть одинаковые
 '''
-TRAIN_SAMPLE = 5
-TEST_SAMPLE = 10
+TRAIN_SAMPLE = 1200
+TEST_SAMPLE = 1429
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
