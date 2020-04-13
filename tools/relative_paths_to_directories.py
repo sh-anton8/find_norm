@@ -2,6 +2,7 @@ import os
 
 CNT_ARTICLES = 6322
 
+#Рассчитываются пути до основых файлов исходя из текущей директории
 
 def path_to_directories(path_to_cur_dir):
     if path_to_cur_dir.endswith('tools'):

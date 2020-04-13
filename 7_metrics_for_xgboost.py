@@ -9,13 +9,19 @@ from tools.relative_paths_to_directories import path_to_directories
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
-TRAIN_SAMPLE = 5
+'''
+Подсчет метрик ранжирования для предсказанных результатов для тестовой выборки
+ВАЖНО! Тестовая и тренировочная выборка такие же как в 6_learning_to_rank.py
+'''
+
+TRAIN_SAMPLE = 5 #
 TEST_SAMPLE = 10
 
 
-predictions_by_queries = xgboost_metrics.read_predictions_from_file()
+predictions_by_queries = xgboost_metrics.read_predictions_from_file() #чтение предсказаний из файла и их парсинг
 pravoved = pravoved_recognizer.norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"))
 
-analize = Analizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE])
+analizer = Analizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE]) # Класс с метриками
 exp_analiz = ExpAnalizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE], 3, PATH_TO_INV_IND)
-analize.ndcg(10)
+analizer.ndcg(10) # подсчет одной из метрик ранжирования (также может быть mrr, map, результирующий график
+#сохранятся files/metrics_count

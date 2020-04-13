@@ -6,6 +6,10 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 
 def read_predictions_from_file():
+    # Чтение предсказаний тестовой выборки из файла
+    # Возвращение массива predictions_by_queries
+    # predictions_by_queries[j] -- отсортированный по вероятности список статей в нашей нумерации
+    # predictions_by_queries[j][k] --  ((кодекс, статья), вероятность того, что jй запрос релевантен k-ой статье
     predictions = []
     with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "prediction_file.txt"), "r") as f:
         for line in f.readlines():

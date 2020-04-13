@@ -18,6 +18,10 @@ from tools.relative_paths_to_directories import path_to_directories
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25, \
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
+'''
+Реализация класса для подсчета всех признаков для машинного обучения
+'''
+
 
 class Features:
     def __init__(self, inv_ind_pickle, bm_25_file):
@@ -35,6 +39,7 @@ class Features:
             self.bm_obj = My_BM.load(bm_25_file)
 
     def get_fmerRelev_feature(self, req_text, article_num):
+        # Считается F-мера для запроса и номера статьи в нашей нумерации (кодекс, статья)
         reqst = req_text
         self.inv_ind.tokenizer.text = reqst
         reqst = self.inv_ind.tokenizer.tokenize(self.inv_ind.cash, self.inv_ind.morph, self.inv_ind.stop_words)
@@ -55,12 +60,14 @@ class Features:
         return F
 
     def get_doc_len_feature(self, req_text, article_num):
+        # Считается длина документа
         if article_num not in self.inv_ind.num_to_len:
             return 0
 
         return self.inv_ind.num_to_len[article_num]
 
     def get_bm25_feature(self, req_text, article_num):
+        # Считается bm25 для поданной на вход статьи и запроса
         return self.bm_obj.get_feature(req_text, article_num)
 
     def _tfidf_cnt(self, ngramm: tp.Tuple[int, int], inv_ind_path: str, tfidf_path: str, num: int,
@@ -71,6 +78,7 @@ class Features:
         mod.save(tfidf_path + '_' + str(num))
 
     def _if_file_not_exist(self, tfidf_path, num):
+        # проверяет существует ли файл
         if not os.path.exists(tfidf_path + f'_{num}'):
             return True
         return False
@@ -92,6 +100,8 @@ class Features:
             self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 6, sublinear_tf=True)
 
     def load_all_tfidf(self):
+        # считает все tf-idf, если они еще не посчитаны
+        # сохраняет все загруженные tf-idf в массив self.tfidfs
         self._count_tf_idf()
         for i, file in enumerate(sorted(os.listdir(PATH_TO_TF_IDF))):
             tfidf_cnt = TFIDF.load(os.path.join(PATH_TO_TF_IDF, file))
@@ -100,13 +110,14 @@ class Features:
             self.tfidfs.append(tfidf_cnt)
 
     def features_cos_sim(self, req: Request):
-        # считает косинусиновую меру для заданного запроса и посчитанных tf_idf
+        # считает косинусиновую меру для заданного запроса и всех tf_idf
         cos_simil = [0] * 6
         for i in range(6):
             cos_simil[i] = self._count_cos_similarity(req, self.tfidfs[i])
         return cos_simil
 
     def _count_cos_similarity(self, req: Request, tfidf_loaded):
+        # считает косинусиновую меру для заданного запроса и одного заданного tf_idf
         t = Tokenizer(req.question)
         req = t.tokenize(self.cash, self.morph, self.stop_words)
         req_tfidf_dict = tfidf_loaded.request_counting([" ".join(req)])

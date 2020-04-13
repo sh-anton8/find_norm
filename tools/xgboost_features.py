@@ -15,6 +15,7 @@ FEATURES_NUM = 9
 
 
 def is_article_relev(r: Request, art: tp.Tuple[str, str]) -> bool:
+    # релевантен ли запрос статье
     if (str(r.codex), str(r.norm)) == art:
         return True
     return False
@@ -22,7 +23,7 @@ def is_article_relev(r: Request, art: tp.Tuple[str, str]) -> bool:
 
 def find_feautures_for_request(request: Request, path_to_featute_file: str,
                                feature: Features, is_train=False):
-    #записывает целевую переменную и признаки данного признака в файл
+    #записывает целевую переменную и признаки данного запроса в файл
     tfidf_file = feature.first_tf_idf
     with open(path_to_featute_file, 'a+') as x:
         all_features_for_request = [[0] * CNT_ARTICLES for _ in range(FEATURES_NUM)]
@@ -55,11 +56,15 @@ def create_group_file(requests_list: str, path_to_file: str) -> None:
 
 
 def delete_if_exist(path_to_file: str) -> None:
+    # удаление файла, если он существует
     if os.path.exists(path_to_file):
         os.remove(path_to_file)
 
 
 def features_to_files(train_sample: int, test_sample: int) -> None:
+    # Создаются тестовая и тренировочная выборки
+    # Для каждого запроса записываются его признаки в файлы
+
     delete_if_exist(os.path.join(PATH_TO_LEARNING_TO_RANK, 'x_train.txt'))
     delete_if_exist(os.path.join(PATH_TO_LEARNING_TO_RANK, 'x_test.txt'))
     delete_if_exist(os.path.join(PATH_TO_LEARNING_TO_RANK, 'gr_train.txt'))

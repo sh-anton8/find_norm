@@ -10,6 +10,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 
 def predict_xgboost_answers(xgb_model):
+    # запись прогноза посчитанной модели на тестовой выборке в виде ((кодекс, статья), вероятность)
     load_tfidf_1 = TFIDF.load(os.path.join(PATH_TO_TF_IDF, 'tf_idf_1'))
     x_test, y_test = sklearn.datasets.load_svmlight_file(os.path.join(PATH_TO_LEARNING_TO_RANK, 'x_test.txt'))
     test_dmatrix = DMatrix(x_test)
