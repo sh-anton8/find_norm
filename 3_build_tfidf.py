@@ -12,7 +12,7 @@ fnIdxCodex2Article = PATH_TO_INV_IND
 
 # файл, куда будет сохраняться (или где уже сохранен) объект класса InvIndex
 # перед поиском рекомендуется удалять имеющийся файл и считать заново (иначе могут быть проблемы в директориях)
-fnTFIDFCodex2Article = os.path.join(PATH_TO_TF_IDF, 'tf_idf_1')
+fnTFIDFCodex2Article = os.path.join(PATH_TO_TF_IDF, 'tf_idf')
 
 # если объект уже создан, то строить нет смысла
 # иначе строим и сохраняем объект класса InvIndex по директории fnIdxCodex2Article
