@@ -25,7 +25,7 @@ def find_feautures_for_request(request: Request, path_to_featute_file: str,
                                feature: Features, is_train=False):
     #записывает целевую переменную и признаки данного запроса в файл
     tfidf_file = feature.first_tf_idf
-    with open(path_to_featute_file, 'a+') as x:
+    with open(path_to_featute_file, 'a+', encoding='utf-8') as x:
         all_features_for_request = [[0] * CNT_ARTICLES for _ in range(FEATURES_NUM)]
         for i in range(len(tfidf_file.num_to_num_dict.keys())):
             all_features_for_request[0][i] = feature.get_bm25_feature(request.question, tfidf_file.num_to_num_dict[i])
@@ -50,7 +50,7 @@ def find_feautures_for_request(request: Request, path_to_featute_file: str,
 
 def create_group_file(requests_list: str, path_to_file: str) -> None:
     # создает group file (распределение статей по запросам)
-    with open(path_to_file, 'w+') as f:
+    with open(path_to_file, 'w+', encoding='utf-8') as f:
         for i in range(len(requests_list)):
             f.write(f'{CNT_ARTICLES}\n')
 

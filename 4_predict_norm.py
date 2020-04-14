@@ -46,7 +46,7 @@ tfidf_searcher.request_processing_pravoved(fnCollectionDir, 5)
     self.tfidf_mod = TFIDF.load(tfidf_file)
 
   File "C:\!_Work\НРА\!experiments\ФКН\find_norm\tools\tfidf.py", line 46, in load
-    with open(file, 'rb') as f:
+    with open(file, 'rb', encoding='utf-8') as f:
 
 FileNotFoundError: [Errno 2] No such file or directory: 'C:\\!_Work\\НРА\\!experiments\\ФКН\\find_norm\\files\\tf_idf\\tf_idf'
 tfidf_searcher = TFIDF_Search(tokenize_docs.Tokenizer('text'), fnTFIDFCodex2Article)

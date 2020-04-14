@@ -100,7 +100,7 @@ def get_features(reqst: prav_rec.Request) -> tp.List[np.array]:
 def find_feautures_for_request(req_num: int, request: prav_rec.Request, path_to_featute_file: str,
                                is_train=False):
     #записывает целевую переменную и признаки данного признака в файл
-    with open(path_to_featute_file, 'a+') as x:
+    with open(path_to_featute_file, 'a+', encoding='utf-8') as x:
         all_features_for_request = [[0] * 6322 for _ in range(9)]
         for i in range(len(tfidf_file.num_to_num_dict.keys())):
             all_features_for_request[0][i] = feature.get_bm25_feature(request.question, tfidf_file.num_to_num_dict[i])
@@ -126,7 +126,7 @@ def find_feautures_for_request(req_num: int, request: prav_rec.Request, path_to_
 
 def create_group_file(requests_list: str, path_to_file: str) -> None:
     # создает group file (распределение статей по запросам)
-    with open(path_to_file, 'w+') as f:
+    with open(path_to_file, 'w+', encoding='utf-8') as f:
         for i in range(len(requests_list)):
             f.write('6322\n')
 
@@ -167,12 +167,12 @@ def train_xgboost_model():
     train_dmatrix = DMatrix(x_train, y_train)
     group_train = []
     group_test = []
-    with open("gr_train.txt", "r") as f:
+    with open("gr_train.txt", "r", encoding='utf-8') as f:
         data = f.readlines()
         for line in data:
             group_train.append(int(line.split("\n")[0]))
 
-    with open("gr_test.txt", "r") as f:
+    with open("gr_test.txt", "r", encoding='utf-8') as f:
         data = f.readlines()
         for line in data:
             group_test.append(int(line.split("\n")[0]))
@@ -192,7 +192,7 @@ def predict_xgboost_answers(xgb_model):
         prediction_answer.append((p, tfidf_file.num_to_num_dict[i % 6322]))
     if os.path.exists("prediction_file.txt"):
         os.remove("prediction_file.txt")
-    f = open("prediction_file.txt", 'w+')
+    f = open("prediction_file.txt", 'w+', encoding='utf-8')
     predictions = [str(pred) for pred in prediction_answer]
     f.write('\n'.join(predictions))
     f.close()

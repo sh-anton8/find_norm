@@ -15,12 +15,12 @@ def train_xgboost_model():
 
     group_train = []
     group_test = []
-    with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_train.txt"), "r") as f:
+    with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_train.txt"), "r", encoding="utf-8") as f:
         data = f.readlines()
         for line in data:
             group_train.append(int(line.split("\n")[0]))
 
-    with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"), "r") as f:
+    with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"), "r", encoding="utf-8") as f:
         data = f.readlines()
         for line in data:
             group_test.append(int(line.split("\n")[0]))

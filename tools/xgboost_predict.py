@@ -21,7 +21,7 @@ def predict_xgboost_answers(xgb_model):
     predict_file = os.path.join(PATH_TO_LEARNING_TO_RANK, 'prediction_file.txt')
     if os.path.exists(predict_file):
         os.remove(predict_file)
-    f = open(predict_file, 'w+')
+    f = open(predict_file, 'w+', encoding="utf-8")
     predictions = [str(pred) for pred in prediction_answer]
     f.write('\n'.join(predictions))
     f.close()

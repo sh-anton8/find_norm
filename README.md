@@ -24,4 +24,4 @@ files/pravoved_articles.txt -- Ответы на запросы Правовед
 
 
 Для построения модели нужно запускать все файлы в корневой директории по порядку, ПРЕДВАРИТЕЛЬНО! обозначив TRAIN_SAMPLE, TEST_SAMPLE в 6_learning_to_rank.py, 7_metrics_for_xgboost.py.\
-Рекомендованный TRAIN_SAMPLE = 1200, TEST_SAMPLE = -1
+Рекомендованный TRAIN_SAMPLE = 1200, TEST_SAMPLE = 1429
