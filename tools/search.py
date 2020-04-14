@@ -8,12 +8,20 @@ from tools.inverse_index import InvIndex
 from tools.tfidf import TFIDF
 import tools.pravoved_recognizer as pravoved_recognizer
 
-
+# 2Anton - бесхозная функция
+# она заявлена один раз, но используется потом не по делу, передаётся n - как параметр что?
+# self.inverse_index.num_to_text !!!!1 но это же не число!
+# вот это и есть проблема документирования
 def print_ans(ans_arr, num_to_name, n):
     ans_arr.sort(key=lambda x: x[1], reverse=True)
     i = 1
+    # 2Anton тут я переопределю число n, так как оно передаётся от балды :(
+    n = 5
     for el in ans_arr[:n]:
         print(i, "-ый по релевантности ответ:", end=' ')
+        # 2Anton: что такое num_to_name? 
+        # почему оно у вас в строковом виде KeyError: ('16', '54')
+        # а не в числовом??????
         print(num_to_name[el[0]])
         i += 1
     return ans_arr
