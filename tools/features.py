@@ -1,17 +1,15 @@
 from tools.inverse_index import InvIndex
 from tools.bm25 import My_BM
-from collections import Counter
 import os
 from tools.pravoved_recognizer import Request
 from tools.tfidf import TFIDF
 import typing as tp
-from tools import search
-from tools import tokenize_docs
 from tools.tokenize_docs import Tokenizer
 from sklearn.metrics.pairwise import cosine_similarity
 from pymorphy2 import MorphAnalyzer
 from collections import Counter
 from nltk.corpus import stopwords
+from tools import coll
 
 from tools.relative_paths_to_directories import path_to_directories
 
@@ -31,6 +29,7 @@ class Features:
         self.morph = MorphAnalyzer()
         self.stop_words = stopwords.words("russian")
         self.tfidfs = []
+        self.art_names = {}
         self.first_tf_idf = None
         if not os.path.isfile(bm_25_file):
             self.bm_obj = My_BM(PATH_TO_INV_IND)
@@ -124,6 +123,12 @@ class Features:
         cos_sim = cosine_similarity(tfidf_loaded.tfidf_matrix, req_tfidf_dict)
         return cos_sim
 
-    def feature_art_name_intersection(self, art_name: str, req: Request) -> int:
+    def dict_for_art_names(self):
+        codex_path = os.path.join(PATH_TO_ROOT, "codexes")
+        for cod in os.listdir(codex_path):
+            _, art_n = coll.iter_by_docs(cod, codex_path, 'art_name2', 1)
+            self.art_names.update(art_n)
+
+    def feature_art_name_intersection(self,  req: str, article: (str, str)) -> int:
         # количество слов из названия статьи, встретившихся в запросе
-        return len(set(list(art_name)) & set(list(req.question)))
+        return len(set(self.art_names[article].split()) & (set(req.split())))

@@ -29,7 +29,7 @@ def find_feautures_for_request(request: Request, path_to_featute_file: str,
         all_features_for_request = [[0] * CNT_ARTICLES for _ in range(FEATURES_NUM)]
         for i in range(len(tfidf_file.num_to_num_dict.keys())):
             all_features_for_request[0][i] = feature.get_bm25_feature(request.question, tfidf_file.num_to_num_dict[i])
-            #all_features_for_request[1][i] = feature.feature_art_name_intersection(request.question)
+            all_features_for_request[1][i] = feature.feature_art_name_intersection(request.question, tfidf_file.num_to_num_dict[i])
             all_features_for_request[2][i] = feature.get_doc_len_feature(request.question, tfidf_file.num_to_num_dict[i])
         cos_simils = feature.features_cos_sim(request)
         for i, cs in enumerate(cos_simils):
@@ -82,6 +82,7 @@ def features_to_files(train_sample: int, test_sample: int) -> None:
 
     feature = Features(PATH_TO_INV_IND, os.path.join(PATH_TO_FILES, "bm_25.pickle"))
     feature.load_all_tfidf()
+    feature.dict_for_art_names()
 
     t = tqdm(total=len(train_pravoved_requests))
     for i, req in enumerate(train_pravoved_requests):

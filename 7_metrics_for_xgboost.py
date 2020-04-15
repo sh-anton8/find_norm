@@ -14,7 +14,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 ВАЖНО! Тестовая и тренировочная выборка такие же как в 6_learning_to_rank.py
 '''
 
-TRAIN_SAMPLE = 1200 #len(pravoved) = 1429
+TRAIN_SAMPLE = 1000 #len(pravoved) = 1429
 TEST_SAMPLE = 1429
 
 
@@ -22,5 +22,5 @@ predictions_by_queries = xgboost_metrics.read_predictions_from_file() #чтен�
 pravoved = pravoved_recognizer.norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"))
 analizer = Analizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE]) # Класс с метриками
 exp_analiz = ExpAnalizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE], 3, PATH_TO_INV_IND)
-analizer.ndcg(10) # подсчет одной из метрик ранжирования (также может быть mrr, map, результирующий график
+exp_analiz.ndcg(20) # подсчет одной из метрик ранжирования (также может быть mrr, map, результирующий график
 #сохранятся files/metrics_count
