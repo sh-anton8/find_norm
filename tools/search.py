@@ -8,21 +8,14 @@ from tools.inverse_index import InvIndex
 from tools.tfidf import TFIDF
 import tools.pravoved_recognizer as pravoved_recognizer
 
-# 2Anton - бесхозная функция
-# она заявлена один раз, но используется потом не по делу, передаётся n - как параметр что?
-# self.inverse_index.num_to_text !!!!1 но это же не число!
-# вот это и есть проблема документирования
+
 def print_ans(ans_arr, num_to_name, n):
     ans_arr.sort(key=lambda x: x[1], reverse=True)
     i = 1
-    # 2Anton тут я переопределю число n, так как оно передаётся от балды :(
-    n = 5
     for el in ans_arr[:n]:
         print(i, "-ый по релевантности ответ:", end=' ')
-        # 2Anton: что такое num_to_name? 
-        # почему оно у вас в строковом виде KeyError: ('16', '54')
-        # а не в числовом??????
-        print(num_to_name[el[0]])
+        #print(num_to_name[el[0]])
+        print(el[0])
         i += 1
     return ans_arr
 
@@ -86,7 +79,7 @@ class Inv_Ind_Search(Search):
                     F = 2 / ((1 / Presicion) + (1 / Recall))
             ans[key] = F
         list_ans = list(ans.items())
-        print_ans(list_ans, self.inverse_index.num_to_name, self.inverse_index.num_to_text)
+        print_ans(list_ans, self.inverse_index.num_to_name, 5)
 
     # функция предназначена для ответа на вопросы из правоведа
     # на каждый вопрос правоведа выдает топ-5 релевантных ответов
@@ -121,7 +114,7 @@ class TFIDF_Search(Search):
             ans.append((self.tfidf_mod.num_to_num_dict[i], el[0]))
             i += 1
 
-        ans = print_ans(ans, self.tfidf_mod.inverse_index.num_to_name, self.tfidf_mod.inverse_index.num_to_text)
+        ans = print_ans(ans, self.tfidf_mod.inverse_index.num_to_name, 5)
         return ans
 
     def request_tfidf(self, reqst):
