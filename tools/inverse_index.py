@@ -3,63 +3,102 @@
 import os
 import tools.coll as coll
 import pickle
-from pymorphy2 import MorphAnalyzer
-from nltk.corpus import stopwords
 from tqdm import tqdm
+import pandas as pd
+from collections import Counter
 
 
-class InvIndex():
-    def __init__(self, directory, tokenizer):
-        self.dir = directory
+class InvIndex:
+    def __init__(self, tokenizer):
         self.inv_ind = {}
+        self.doc_ids = []
+        self.doc_lens = {}
         self.tokenizer = tokenizer
-        self.text_to_num = {}
-        self.num_to_text = {}
-        self.cash = dict()
-        self.morph = MorphAnalyzer()
-        self.stop_words = stopwords.words("russian")
-        self.num_tokens_dict = {}
-        self.num_to_len = {}
-        self.num_to_name = {}
+    
+    
+    def build_on(self, corpus, tokenized=True):
+        """
+        Построить обратный индекс по корпусу.
+        tokenized: если True, то считаем что подается уже токенизированный
+        корпус (тем же токенайзером что задан в init)
+        """
+        for doc_id, doc_text in corpus:
+            doc_num = len(self.doc_ids)
+            self.doc_ids.append(doc_id)
 
-    def update_dicts(self, par):  # par - по чему итерируемся, например: 'paragraph' (подробнее в coll)
-        for file in os.listdir(self.dir):
-            d1, d2 = coll.iter_by_docs(file, self.dir, par, 0)
-            self.num_to_text.update(d1)
-            self.text_to_num.update(d2)
-            self.num_to_name.update(coll.iter_by_docs(file, self.dir, 'art_name', 1))
+            tokens = doc_text if tokenized else self.tokenizer.tokenize(doc_text)
+            tokens = set(tokens)  # важно - не учитываем повторы токенов
+            
+            self.doc_lens[doc_id] = len(tokens)
 
-    def num_tokens_dict_builder(self):
-        for key in list(self.num_to_text.keys()):
-            self.tokenizer.text = self.num_to_text[key]
-            tokens = self.tokenizer.tokenize(self.cash, self.morph, self.stop_words)
-            self.num_tokens_dict[key] = tokens
+            for token in tokens:
+                if token not in self.inv_ind:
+                    self.inv_ind[token] = []
+                # в обратный индекс записываем не сам doc_id, а его номер,
+                # это делается для оптимизации памяти и скорости
+                self.inv_ind[token].append(doc_num)
 
-    def build_inversed_index(self, par):  # par - по чему итерируемся, например: 'paragraph'
+
+    def search(self, query, topN=10, threshold=0.5, metric='recall'):
+        """
+        Поиск по запросу.
+        topN - сколько документов оставить после ранжирования по релевантности
+        threshold - порог отсечения по релевантности
+        metric - тип релевантности: точность, полнота или F1
+        """
+        assert metric in ['precision', 'recall', 'f_measure']
         
-        t = tqdm(total = len( os.listdir(self.dir)))
-        for file in os.listdir(self.dir):
-            for i_d in coll.iter_by_docs(file, self.dir, par, 1):
-                self.tokenizer.text = i_d
-                tokens = self.tokenizer.tokenize(self.cash, self.morph, self.stop_words)
-                for token in tokens:
-                    if token in self.inv_ind:
-                        if (self.text_to_num[i_d], tokens.count(token)) not in self.inv_ind[token]:
-                            self.inv_ind[token].append((self.text_to_num[i_d], tokens.count(token)))
-                    else:
-                        self.inv_ind[token] = [(self.text_to_num[i_d], tokens.count(token))]
-                self.num_to_len[self.text_to_num[i_d]] = len(list(tokens))
-            t.update(1)
-        t.close()
+        tokens = set(self.tokenizer.tokenize(query))
+        qlen = len(tokens)
 
-    # сохраняем весь объект
+        # заполняем счетчик количества токенов запроса в данном "документе" корпуса
+        query_tokens_counter = Counter()
+        for token in tokens:
+            doc_num_list = self.inv_ind.get(token, [])
+            query_tokens_counter.update(doc_num_list)
+
+        result = []
+        for doc_num in query_tokens_counter:
+            found = query_tokens_counter[doc_num]
+
+            recall = found / qlen
+            precision = found / self.doc_lens[self.doc_ids[doc_num]]
+
+            if precision + recall != 0.0:
+                f_measure = 2 * precision * recall / (precision + recall)
+            else:
+                f_measure = 0.0
+            
+            if metric == 'recall':
+                rel = recall
+            elif metric == 'precision':
+                rel = precision
+            elif metric == 'f_measure':
+                rel = f_measure
+
+            if rel < threshold:
+                continue
+
+            result.append([self.doc_ids[doc_num], rel])
+
+        if result:
+            df_res = pd.DataFrame(result, columns=['doc_id', 'rel'])
+            df_res = df_res.sort_values('rel', ascending=False)
+
+            # в результатах поиска может быть много документов  с минимальной
+            # релевантностью, но надо их не потерять и взять все, а не только topN
+            min_rel_topN = df_res['rel'][:topN].min()
+            df_res = df_res[df_res['rel'] >= min_rel_topN]
+            result = df_res.values.tolist()
+            
+        return result
+
+
     def save(self, file):
         print('Saving index to: {}'.format(file))
         with open(file, 'wb') as f:
             pickle.dump(self, f)
 
-    # загружаем весь объект, использовать можно потом только его часть
-    # для этого используем модификатор @staticmethod
     @staticmethod
     def load(file):
         print('Loading index from: {}'.format(file))
