@@ -34,7 +34,6 @@ class TFIDF:
             joined_corpus.append(" ".join(tokens))
         self.tfidf_matrix = self.vectorizer.fit_transform(joined_corpus)
 
-        
     def search(self, query, topN=10, threshold=0.5):
         """
         Поиск по запросу.
@@ -51,6 +50,11 @@ class TFIDF:
         sims = [(self.doc_ids[si], raw_sims[si]) for si in sims_indices \
                if raw_sims[si] >= threshold]
         return sims
+
+    def similarity(self, query_tokens):
+        query_tfidf = self.vectorizer.transform([" ".join(query_tokens)])
+        raw_sims = cosine_similarity(query_tfidf, self.tfidf_matrix).reshape(-1)
+        return raw_sims
 
     def save(self, file):
         print('Saving tf-idf to: {}'.format(file))
