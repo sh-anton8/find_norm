@@ -113,9 +113,6 @@ def par(col): #итерирование по пунктам
 
 def iter_by_docs(docs, dir, iter_by, it): #итерирование по документам, в параметрах по чему итерироваться(iter_by), и что именно нужно сделать при итерировании -- вернуть словарь(it=0) или постепенно каждую часть(it=1)
     doc_id = docs[docs.find('_') + 1: docs.find('.')]
-    # 2Настя: до сих пор не указан тип кодировки 
-    # мы это проговаривали очень много раз
-    # надо явно задавать кодировку в которой будет чтение
     f = open(os.path.join(dir, docs), 'r', encoding='utf-8')
     file = f.read()
     c = Collection(file)
@@ -145,10 +142,9 @@ def iter_by_docs(docs, dir, iter_by, it): #итерирование по док�
             return
 
 
-def iter_pravoved(docs):
+def iter_pravoved(docs, encoding='utf-8'):
     doc_id = docs[docs.rfind('_') + 1: docs.rfind('.')]
-    # 2Настя: опять не указана кодировка явно, мы это уже явно обсуждали МНОГО РАЗ!
-    f = open(docs, 'r', encoding='utf-8')
+    f = open(docs, 'r', encoding=encoding)
     file = f.read()
     c = Collection(file)
     return iter_by_art(c, doc_id)
@@ -164,15 +160,12 @@ print(_.values())
 file = open("codexes/codex_1.txt", 'r')
 a, b = iter_by_docs("codex_2.txt", "codexes", 'article', 0)
 print(a.keys())
-
 f = file.read()
 coll = Collection(f)
-
 J, Z = iter_by_chapter(coll, 1)
 print(J.keys())
 for k in par(coll):
     print(k)
     print('---')
 
-'''
 
