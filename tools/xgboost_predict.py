@@ -13,7 +13,13 @@ def predict_xgboost_answers(xgb_model):
     # запись прогноза посчитанной модели на тестовой выборке в виде ((кодекс, статья), вероятность)
     load_tfidf_1 = TFIDF.load(os.path.join(PATH_TO_TF_IDF, 'tf_idf_1'))
     x_test, y_test = sklearn.datasets.load_svmlight_file(os.path.join(PATH_TO_LEARNING_TO_RANK, 'x_test.txt'))
+    group_test = []
+    with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"), "r", encoding="utf-8") as f:
+        data = f.readlines()
+        for line in data:
+            group_test.append(int(line.split("\n")[0]))
     test_dmatrix = DMatrix(x_test)
+    test_dmatrix.set_group(group_test)
     pred = xgb_model.predict(test_dmatrix)
     prediction_answer = []
     for i, p in enumerate(pred):

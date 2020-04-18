@@ -103,20 +103,18 @@ class Analizer:
 
     @staticmethod
     def ap_k(relev_positions, k):
-        print(relev_positions, k)
         ans = 0
         num_rel = 0
         for rl in relev_positions:
-            if rl < k:
+            if rl <= k:
                 num_rel += 1
                 ans += num_rel / rl
             else:
                 break
-        print(ans)
         return ans
 
     def map_k(self, K):
-        apk = [0] * (K // 2)
+        apk = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
             actual_art = [(self.sample[j].codex, self.sample[j].norm)]
             predicted_art = []
@@ -126,40 +124,34 @@ class Analizer:
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
                     relev_positions.append(i + 1)
-            for k in range(1, K, 2):
+            for k in range(1, K + 1, 2):
                 apk[k // 2] += self.ap_k(relev_positions, k)
         apk = [a / len(self.sample) for a in apk]
-        x = [i for i in range(1, K, 2)]
+        x = [i for i in range(1, K + 1, 2)]
         print(apk)
 
         self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map.png')
 
     def ndcg(self, K):
+        ndcg = [0] * ((K + 1) // 2)
+        for j in range(len(self.sample)):
+            actual_art = [(self.sample[j].codex, self.sample[j].norm)]
+            predicted_art = []
+            for ans in self.answers[j][:K]:
+                predicted_art.append((ans[0][0], ans[0][1]))
+            relev_positions = []
+            for i, pa in enumerate(predicted_art):
+                if pa in actual_art:
+                    relev_positions.append(i + 1)
+            for k in range(1, K + 1, 2):
+                for r in relev_positions:
+                    if r <= k:
+                        ndcg[k // 2] += 1/math.log(r + 1, 2)
+        ndcg = [a / len(self.sample) for a in ndcg]
+        x = [i for i in range(1, K + 1, 2)]
+        print(ndcg)
 
-        x = []
-        y_articles = []
-
-        for i in range(2, K, 2):
-            sum_ndcg = 0
-            for j in range(len(self.sample)):
-                print(len(self.sample))
-                answ = self.answers[j][:i]
-                scores = []
-                ndcg = 0
-                for ans in answ:
-                    print(ans[0][0], ans[0][1], self.sample[j].codex, self.sample[j].norm)
-                    if (self.sample[j].codex, self.sample[j].norm) == (ans[0][0], ans[0][1]):
-                        scores.append(1)
-                    else:
-                        scores.append(0)
-                for k in range(1, len(scores) + 1):
-                    ndcg += scores[k - 1] / math.log(k + 1, 2)
-                sum_ndcg += ndcg
-            print(sum_ndcg / len(self.sample))
-            x.append(i)
-            y_articles.append(sum_ndcg / len(self.sample))
-
-        self.save_graphics(x=x, metric=y_articles, ylabel='NDCG', name_file='ndcg.png')
+        self.save_graphics(x=x, metric=ndcg, ylabel='MAP(k)', name_file='map.png')
 
 
 
@@ -167,16 +159,14 @@ class Analizer:
     @staticmethod
     def mrr_k(relev_positions, k):
         for rl in relev_positions:
-            if rl < k:
+            if rl <= k:
                 return 1 / rl
         return 0
 
     def mrr(self, K):
-        mrr = [0] * (K // 2)
+        mrr = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            print(self.sample[j].answer)
             actual_art = [(self.sample[j].codex, self.sample[j].norm)]
-            print(actual_art)
             predicted_art = []
             for ans in self.answers[j][:K]:
                 predicted_art.append((ans[0][0], ans[0][1]))
@@ -184,10 +174,10 @@ class Analizer:
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
                     relev_positions.append(i + 1)
-            for k in range(1, K, 2):
+            for k in range(1, K + 1, 2):
                 mrr[k // 2] += self.mrr_k(relev_positions, k)
         mrr = [a / len(self.sample) for a in mrr]
-        x = [i for i in range(1, K, 2)]
+        x = [i for i in range(1, K + 1, 2)]
         print(mrr)
 
         self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr.png')
