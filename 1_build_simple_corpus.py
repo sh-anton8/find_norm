@@ -23,5 +23,5 @@ for filename in tqdm(os.listdir(codexes_dir)):
 tokenized_corp = SimpleCorp()
 tokenized_corp.make_from(simple_corp, tokenizer)
 
-simple_corp.save('codexes_corp_articles', f'{PATH_TO_FILES}\corp')
-tokenized_corp.save('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}\corp')
+simple_corp.save('codexes_corp_articles', os.path.join(PATH_TO_FILES, "corp"))
+tokenized_corp.save('codexes_tokenized_corp_articles', os.path.join(PATH_TO_FILES, "corp"))
