@@ -105,9 +105,9 @@ class ExpAnalizer():
             if rl < k:
                 num_rel += 1
                 ans += num_rel / rl
+                return ans
             else:
                 break
-        print(ans)
         return ans
 
     def map_k(self, K):
@@ -140,29 +140,25 @@ class ExpAnalizer():
 
 
     def ndcg(self, K):
-
         x = []
         y_articles = []
 
         for i in range(2, K, 2):
             sum_ndcg = 0
-            print(len(self.sample))
             for j in range(len(self.sample)):
                 answ = self.answers[j][:i]
                 scores = []
                 ndcg = 0
-                for ans in answ:
+                for k, ans in enumerate(answ):
                     right_ans = (str(self.sample[j].codex), self.sample[j].norm)
-                    print(right_ans, tuple(ans[0]))
                     if self.num_to_ind_dict.get(right_ans, -100) - self.epsilon <= self.num_to_ind_dict[
                         tuple(ans[0])] <= self.num_to_ind_dict.get(right_ans, -100) + self.epsilon:
-                        scores.append(1)
-                    else:
-                        scores.append(0)
-                for k in range(1, len(scores) + 1):
-                    ndcg += scores[k - 1] / math.log(k + 1, 2)
+                        scores.append(k + 1)
+                        break
+                for k in scores:
+                    print(k)
+                    ndcg += 1 / math.log(k + 1, 2)
                 sum_ndcg += ndcg
-            print(sum_ndcg / len(self.sample))
             x.append(i)
             y_articles.append(sum_ndcg / len(self.sample))
 

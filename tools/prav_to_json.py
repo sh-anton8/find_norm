@@ -6,6 +6,11 @@ import os
 import json
 import tools.name_codexes as nc
 
+from tools.relative_paths_to_directories import path_to_directories, CNT_ARTICLES
+
+PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25, \
+    PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+
 class Request:
     def __init__(self, theme, question, answer):
         self.theme = theme
@@ -78,7 +83,7 @@ class Separator:
 codexes_requests = []
 
 
-s = Separator("pravoved_articles.txt")
+s = Separator(os.path.join(PATH_TO_FILES, 'pravoved_articles.txt'))
 s.fill_requests2()
 
 '''
@@ -88,25 +93,17 @@ print(len(codexes_requests))
 def dict_codexes_creator():
     codexes = dict()
     codexes[('нк', 'налог')] = [1, 2]
-    codexes[('гк', 'граждан')] = [3, 4, 5]
-    codexes[('коап', 'администрат')] = [7]
-    codexes[('земел', 'зк')] = [8]
-    codexes[('тк', 'трудов')] = [9]
-    codexes[('жилищ', 'жк')] = [11]
-    codexes[('бюджет', 'бк')] = [12]
-    codexes[('процессуальн', 'упк')] = [14]
+    codexes[('гк', 'граждан')] = [3, 4, 5, 6]
+    codexes[('тк', 'трудов')] = [7]
+    codexes[('коап', 'администрат')] = [8]
+    codexes[('земел', 'зк')] = [9]
+    codexes[('жилищ', 'жк')] = [12]
+    codexes[('апк', 'арбитраж')] = [14]
     codexes[('уголов', 'ук')] = [16]
-    codexes[('лесн', 'лк')] = [19]
     codexes[('семейн', 'ск')] = [17]
-    codexes[('водн', 'вк')] = [20]
-    codexes[('гпк')] = [21]
-    codexes[('ктм')] = [22]
-    codexes[('уик')] = [23]
-    codexes[('апк', 'арбитраж')] = [24]
-    codexes[('воздушн', 'взк')] = [25]
-    codexes[('кввт')] = [26]
-    codexes[('тк', 'таможен')] = [912]
-    codexes[('грк', 'градостроит')] = [916]
+    codexes[('процессуальн', 'упк')] = [20]
+    codexes[('водн', 'вк')] = [23]
+    codexes[('лесн', 'лк')] = [26]
     poss_codexes = ['тк', 'кввт', 'воздушн', 'взк', 'нк', 'налог', 'гк', 'граждан',
                     'коап', 'администрат', 'земел', 'зк', 'тк', 'трудов', 'жилищ', 'жк',
                     'бюджет', 'бк', 'процессульальн', 'упк', 'уголовн', 'ук', 'лесн', 'лк',
@@ -167,29 +164,29 @@ def codexes_to_json(codex_directory):
             for n in co.norm:
                 co.cod_norm.append([*co.codex, n])
 
-    pic = open('pravoved_to_json.json', 'w', encoding='utf-8')
-    ans_dict = {}
-    for j, co in enumerate(codexes_out):
-        new_codnorm = set()
-        codnorm = co.cod_norm
-        for cn in codnorm:
-            cod = cn[0]
-            norm = cn[1]
-            for c in cod:
-                if (str(c), norm) in set_numbers:
-                    new_codnorm.add((nc.name_codexes[c].lower(), 'ст ' + norm[:-1]))
-        co.cod_norm = list(new_codnorm)
-        ans_dict[j] = dict()
-        ans_dict[j]["Question"] = co.question
-        ans_dict[j]["Answer_Lawyer"] = co.answer
-        for i in range(len(co.cod_norm)):
-            co.cod_norm[i] = ' '.join(co.cod_norm[i])
-        ans_dict[j]["Answer"] = ', '.join(co.cod_norm)
-        #json.dump(ans_dict, pic, ensure_ascii=False, indent=2)
-        #pic.write('\n\n')
-    json.dump(ans_dict, pic, indent=2)
+    with open('pravoved_to_json.json', 'w', encoding='utf-8') as pic:
+        ans_dict = {}
+        for j, co in enumerate(codexes_out):
+            new_codnorm = set()
+            codnorm = co.cod_norm
+            if not codnorm:
+                continue
+            for cn in codnorm:
+                cod = cn[0]
+                norm = cn[1]
+                for c in cod:
+                    if (str(c), norm[:-1]) in set_numbers:
+                        new_codnorm.add((nc.name_codexes[c].lower(), 'ст ' + norm[:-1]))
+            co.cod_norm = list(new_codnorm)
+            ans_dict[j] = dict()
+            ans_dict[j]["Question"] = co.question
+            ans_dict[j]["Answer_Lawyer"] = co.answer
+            for i in range(len(co.cod_norm)):
+                co.cod_norm[i] = ' '.join(co.cod_norm[i])
+            ans_dict[j]["Answer"] = ', '.join(co.cod_norm)
+        json.dump(ans_dict, pic, indent=2, ensure_ascii=False)
 
-codexes_to_json("codexes")
+codexes_to_json(os.path.join(PATH_TO_ROOT, "codexes"))
 
 
 #norms_codexes_to_normal("codexes")

@@ -22,5 +22,7 @@ predictions_by_queries = xgboost_metrics.read_predictions_from_file() #чтен�
 pravoved = pravoved_recognizer.norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"))
 analizer = Analizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE]) # Класс с метриками
 exp_analiz = ExpAnalizer(predictions_by_queries, pravoved[TRAIN_SAMPLE: TEST_SAMPLE], 3, PATH_TO_INV_IND)
-exp_analiz.ndcg(20) # подсчет одной из метрик ранжирования (также может быть mrr, map, результирующий график
+analizer.ndcg(10) # подсчет одной из метрик ранжирования (также может быть mrr, map, результирующий график
+analizer.map_k(10)
+analizer.mrr(10)
 #сохранятся files/metrics_count
