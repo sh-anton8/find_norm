@@ -14,8 +14,10 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 # функция релевантности
 # features - list признаков для i документа
-def relev(features):
-    return sum(features) / len(features)
+def average_func(row):
+    r_list = list(row)[1:]
+    return sum(r_list)/len(r_list)
+
 
 
 path_to_tf_idf = os.path.join(PATH_TO_TF_IDF, 'tf_idf')
@@ -27,7 +29,7 @@ for i in range(1, 7):
     searchers_array.append(TFIDF.load(path_to_tf_idf + '_' + str(i)))
 
 # поиск по запросу query
-b_search = Baseline_Search(tokenizer, searchers_array)
+b_search = Baseline_Search(average_func, searchers_array)
 query = 'Симметричные корректировки осуществляются в порядке, установленном настоящей статьей.'
-search_result = b_search.search(query, relev)
+search_result = b_search.search(query, dataFrReturned=False)
 print(search_result)
