@@ -6,16 +6,17 @@ INFO: Данный файл содержит класс ExpAnalizer для оц�
 Т.Е теперь правильная статья не 1, а 1 + 2 * epsilon
 
 '''
-
-
-import tools.search as search
-import tools.pravoved_recognizer as pravoved_recognizer
-import tools.tokenize_docs as tokenize_docs
 import matplotlib.pyplot as plt
 import math
 from tools.inverse_index import InvIndex
+import os
+from tools.relative_paths_to_directories import path_to_directories
 
-class ExpAnalizer():
+PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
+    PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+
+
+class ExpAnalizer:
     # sample - выборка (массив структур Запрос (request) из pravoved_recognizer.py)
     # answers - ответы модели (массив i эл-т которого - массив содержащий отсортированные по релевантности ответы на
     # i-ый запрос выборки в виде (номер в нашей нумерации, релевантность данной статьи))
@@ -34,6 +35,14 @@ class ExpAnalizer():
             self.num_to_ind_dict[key] = ind
             ind += 1
 
+    @staticmethod
+    def save_graphics(x, metric, ylabel: str, name_file: str):
+        plt.plot(x, metric, color='red', label='Статьи')
+        plt.ylabel(ylabel)
+        plt.xlabel('Количество статей в топе')
+        plt.legend()
+        plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', name_file))
+        plt.show()
 
     def top_n_cover(self, n, in_percent = True):
 
@@ -94,8 +103,6 @@ class ExpAnalizer():
 
 
 
-
-
     @staticmethod
     def ap_k(relev_positions, k):
         print(relev_positions, k)
@@ -111,7 +118,7 @@ class ExpAnalizer():
         return ans
 
     def map_k(self, K):
-        apk = [0] * (K // 2)
+        apk = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
             right_ans = (str(self.sample[j].codex), self.sample[j].norm)
             right_ans_num = self.num_to_ind_dict.get(right_ans, -100)
@@ -123,10 +130,10 @@ class ExpAnalizer():
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
                     relev_positions.append(i + 1)
-            for k in range(1, K, 2):
+            for k in range(1, K + 1, 2):
                 apk[k // 2] += self.ap_k(relev_positions, k)
         apk = [a / len(self.sample) for a in apk]
-        x = [i for i in range(1, K, 2)]
+        x = [i for i in range(1, K + 1, 2)]
         print(apk)
 
         plt.plot(x, apk, color='red', label='Статьи')
@@ -135,9 +142,6 @@ class ExpAnalizer():
         plt.legend()
         plt.savefig('map.png')
         plt.show()
-
-
-
 
     def ndcg(self, K):
         x = []
@@ -170,12 +174,10 @@ class ExpAnalizer():
         plt.show()
 
 
-
-
     @staticmethod
     def mrr_k(relev_positions, k):
         for rl in relev_positions:
-            if rl < k:
+            if rl <= k:
                 return 1 / rl
         return 0
 

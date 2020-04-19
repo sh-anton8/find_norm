@@ -153,7 +153,7 @@ class Analizer:
         x = [i for i in range(1, K + 1, 2)]
         print(ndcg)
 
-        self.save_graphics(x=x, metric=ndcg, ylabel='MAP(k)', name_file='map.png')
+        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='map.png')
 
 
 

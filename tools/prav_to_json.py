@@ -92,7 +92,7 @@ print(len(codexes_requests))
 
 def dict_codexes_creator():
     codexes = dict()
-    codexes[('нк', 'налог')] = [1, 2]
+    codexes[('нк', 'налогов')] = [1, 2]
     codexes[('гк', 'граждан')] = [3, 4, 5, 6]
     codexes[('тк', 'трудов')] = [7]
     codexes[('коап', 'администрат')] = [8]
@@ -130,6 +130,7 @@ def codexes_to_json(codex_directory):
                         finded = 1
                 if finded == 1:
                     new_codex.append(codexes[n])
+                    finded = 0
                     break
         cr.codex = new_codex
         codexes_out.append(cr)
@@ -143,11 +144,10 @@ def codexes_to_json(codex_directory):
                 co_norm1 = co_norm1[0]
             else:
                 continue
-            if not co_norm1.endswith('.'):
-                co_norm1 += '.'
+            if co_norm1.endswith('.'):
+                co_norm1 = co_norm1[:-1]
             co_n.append(co_norm1)
         co.norm = co_n
-
 
     set_numbers = set()
 
@@ -164,7 +164,7 @@ def codexes_to_json(codex_directory):
             for n in co.norm:
                 co.cod_norm.append([*co.codex, n])
 
-    with open('pravoved_to_json.json', 'w', encoding='utf-8') as pic:
+    with open(os.path.join(PATH_TO_FILES, 'pravoved_to_json.json'), 'w', encoding='utf-8') as pic:
         ans_dict = {}
         for j, co in enumerate(codexes_out):
             new_codnorm = set()
@@ -184,6 +184,8 @@ def codexes_to_json(codex_directory):
             for i in range(len(co.cod_norm)):
                 co.cod_norm[i] = ' '.join(co.cod_norm[i])
             ans_dict[j]["Answer"] = ', '.join(co.cod_norm)
+            if not co.cod_norm:
+                print(co.answer)
         json.dump(ans_dict, pic, indent=2, ensure_ascii=False)
 
 codexes_to_json(os.path.join(PATH_TO_ROOT, "codexes"))

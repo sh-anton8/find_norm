@@ -6,13 +6,14 @@ Created on Tue Apr 14 23:31:15 2020
 import pickle
 import os
 from tqdm import tqdm
+from collections import OrderedDict
 
 class SimpleCorp:
     """
     Простейший корпус, состоящий из списка элементов вида (doc_id, doc_text).
     doc_text может быть произвольным по типу - например строка или список токенов...
     """
-    def __init__(self, corpus=dict()):
+    def __init__(self, corpus=OrderedDict()):
         self.corpus = {doc_id: doc_text for doc_id, doc_text in corpus}
 
     def __len__(self):

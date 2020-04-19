@@ -6,9 +6,7 @@ from tools.tfidf import TFIDF
 import typing as tp
 from tools.tokenize_docs import Tokenizer
 from sklearn.metrics.pairwise import cosine_similarity
-from pymorphy2 import MorphAnalyzer
 from collections import Counter
-from nltk.corpus import stopwords
 from tools import coll
 from tools.simple_corp import SimpleCorp
 
@@ -26,9 +24,6 @@ class Features:
     def __init__(self, inv_ind_pickle, bm_25_file):
         self.inv_ind = InvIndex.load(inv_ind_pickle)
         self.inv_in_path = inv_ind_pickle
-        self.cash = dict()
-        self.morph = MorphAnalyzer()
-        self.stop_words = stopwords.words("russian")
         self.tfidfs = []
         self.art_names = {}
         self.first_tf_idf = None
@@ -71,10 +66,10 @@ class Features:
         # Считается bm25 для поданной на вход статьи и запроса
         return self.bm_obj.get_feature(req_text, article_num)
 
-    def _tfidf_cnt(self, ngramm: tp.Tuple[int, int], inv_ind_path: str, tfidf_path: str, num: int,
+    def _tfidf_cnt(self, ngramm: tp.Tuple[int, int], tfidf_path: str, num: int,
                   norm: str = 'l2', use_idf: bool = True, sublinear_tf: bool = False) -> None:
         # считает tfidf по корпусу с параметрами
-        tfidf = TFIDF(tokenizer=Tokenizer(), vectorizer_params={ngramm:ngramm, norm:norm, use_idf:use_idf, sublinear_tf:sublinear_tf})
+        tfidf = TFIDF(tokenizer=Tokenizer(), vectorizer_params={'ngram_range':ngramm, 'norm':norm, 'use_idf':use_idf, 'sublinear_tf':sublinear_tf})
         tfidf.build_on(self.corpus, tokenized=True)
         tfidf.save(tfidf_path + '_' + str(num))
 
@@ -88,17 +83,17 @@ class Features:
         # считает все tfidf, чтобы впоследствии по ним посчитать косинусовую меру
         self.path_to_tf_idf = os.path.join(PATH_TO_TF_IDF, 'tf_idf')
         if self._if_file_not_exist(self.path_to_tf_idf, 1):
-            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 1)
+            self._tfidf_cnt((1, 1), self.path_to_tf_idf, 1)
         if self._if_file_not_exist(self.path_to_tf_idf, 2):
-            self._tfidf_cnt((3, 3), self.inv_in_path , self.path_to_tf_idf, 2)
+            self._tfidf_cnt((1, 2), self.path_to_tf_idf, 2)
         if self._if_file_not_exist(self.path_to_tf_idf, 3):
-            self._tfidf_cnt((1, 3), self.inv_in_path , self.path_to_tf_idf, 3)
+            self._tfidf_cnt((1, 3),  self.path_to_tf_idf, 3)
         if self._if_file_not_exist(self.path_to_tf_idf, 4):
-            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 4, norm='l1', use_idf=False)
+            self._tfidf_cnt((1, 1), self.path_to_tf_idf, 4, norm='l1', use_idf=False)
         if self._if_file_not_exist(self.path_to_tf_idf, 5):
-            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 5, use_idf=False, sublinear_tf=True)
+            self._tfidf_cnt((1, 1), self.path_to_tf_idf, 5, use_idf=False, sublinear_tf=True)
         if self._if_file_not_exist(self.path_to_tf_idf, 6):
-            self._tfidf_cnt((1, 1), self.inv_in_path, self.path_to_tf_idf, 6, sublinear_tf=True)
+            self._tfidf_cnt((1, 1), self.path_to_tf_idf, 6, sublinear_tf=True)
 
     def load_all_tfidf(self):
         # считает все tf-idf, если они еще не посчитаны

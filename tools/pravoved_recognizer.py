@@ -84,7 +84,7 @@ class Separator:
 
 def dict_codexes_creator():
     codexes = dict()
-    codexes[('нк', 'налог')] = [1, 2]
+    codexes[('нк', 'налогов')] = [1, 2]
     codexes[('гк', 'граждан')] = [3, 4, 5, 6]
     codexes[('тк', 'трудов')] = [7]
     codexes[('коап', 'администрат')] = [8]

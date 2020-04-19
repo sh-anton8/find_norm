@@ -1,7 +1,6 @@
 import sklearn
 from xgboost import DMatrix
 import os
-from tools.tfidf import TFIDF
 from tools.simple_corp import SimpleCorp
 
 from tools.relative_paths_to_directories import path_to_directories, CNT_ARTICLES
@@ -19,14 +18,13 @@ def predict_xgboost_answers(xgb_model):
         for line in data:
             group_test.append(int(line.split("\n")[0]))
 
-
     test_dmatrix = DMatrix(x_test)
     test_dmatrix.set_group(group_test)
 
     pred = xgb_model.predict(test_dmatrix)
     corpus = SimpleCorp.load("codexes_corp_articles", os.path.join(PATH_TO_FILES, "corp"))
     prediction_answer = []
-    for p, doc_id in zip(pred, sorted(corpus.corpus.keys()) * (len(pred) // CNT_ARTICLES)):
+    for p, doc_id in zip(pred, list(corpus.corpus.keys()) * (len(pred) // CNT_ARTICLES)):
         prediction_answer.append((doc_id, p))
     predict_file = os.path.join(PATH_TO_LEARNING_TO_RANK, 'prediction_file.txt')
     if os.path.exists(predict_file):
