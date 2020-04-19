@@ -9,7 +9,8 @@ class Baseline_Search():
         self.relev_func = relev_func
         self.searchers = searchers
 
-    # функция поиска (запрос, # документов в топе, 
+
+    # функция поиска (запрос, # документов в топе,
     # вернуть в виде DataFrame (по умолчанию) или массив ответов (для анализа))
     # функция релевантонсти принимает массив признаков для i документа и возвращает его релевантность
     def search(self, query, topN = 10, dataFrReturned = True):
@@ -39,6 +40,6 @@ class Baseline_Search():
 
         # возвращаем ответ в виде таблицы (отсортированной)
         if (dataFrReturned):
-                return result(topN)
+                return result.head(topN)
 
         return result['doc_id'].tolist()[:topN]
