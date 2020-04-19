@@ -6,10 +6,12 @@ INFO: Данный файл содержит класс ExpAnalizer для оц�
 Т.Е теперь правильная статья не 1, а 1 + 2 * epsilon
 
 '''
+
+
 import matplotlib.pyplot as plt
 import math
-from tools.inverse_index import InvIndex
 import os
+from tools.inverse_index import InvIndex
 from tools.relative_paths_to_directories import path_to_directories
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
@@ -19,21 +21,18 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 class ExpAnalizer:
     # sample - выборка (массив структур Запрос (request) из pravoved_recognizer.py)
     # answers - ответы модели (массив i эл-т которого - массив содержащий отсортированные по релевантности ответы на
-    # i-ый запрос выборки в виде (номер в нашей нумерации, релевантность данной статьи))
+    # i-ый запрос выборки в виде (номер в нашей нумерации))
     # epsilon - параметр Epsilon (см. описание)
-    # fnIdxCodex2Article - файл с предпосчитаным обратным индексом
-    def __init__(self, answers, sample, epsilon, fnIdxCodex2Article):
+    def __init__(self, answers, sample, epsilon):
         self.sample = sample
         self.answers = answers
         self.epsilon = epsilon
-        self.num_to_ind_dict = {}
-        self.ind_to_num_dict = {}
-        self.inverse_index = InvIndex.load(fnIdxCodex2Article)
-        ind = 0
-        for key in list(self.inverse_index.num_tokens_dict.keys()):
-            self.ind_to_num_dict[ind] = key
-            self.num_to_ind_dict[key] = ind
-            ind += 1
+        self.id_to_num = {}
+        invInd = InvIndex.load(PATH_TO_INV_IND)
+        self.num_to_id = {}
+        for doc_num, doc_id in enumerate(invInd.doc_ids):
+            self.id_to_num[doc_id] = doc_num
+            self.num_to_id[doc_num] = doc_id
 
     @staticmethod
     def save_graphics(x, metric, ylabel: str, name_file: str):
@@ -44,14 +43,12 @@ class ExpAnalizer:
         plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', name_file))
         plt.show()
 
-    def top_n_cover(self, n, in_percent = True):
+    # n - верхняя граница на количество статей в топе
+    def top_n_cover(self, n, in_percent=True):
 
         x = []
         y_codex = []
         y_articles = []
-
-        print(len(self.sample))
-
 
         for i in range(1, n, 2):
             codex = 0
@@ -64,10 +61,11 @@ class ExpAnalizer:
                 answer = self.answers[ind][:i]
                 ind += 1
                 for ans in answer:
-                    if ans[0][0] == samp.codex:
+                    if ans[0] == samp.codex:
                         cod = 1
                     right_ans = (str(samp.codex), samp.norm)
-                    if self.num_to_ind_dict.get(right_ans, -100) - self.epsilon <= self.num_to_ind_dict[tuple(ans[0])] <= self.num_to_ind_dict.get(right_ans, -100) + self.epsilon:
+                    if self.id_to_num.get(right_ans, -100) - self.epsilon <= self.id_to_num[(ans)]\
+                            <= self.id_to_num.get(right_ans, -100) + self.epsilon:
                         art = 1
                 if cod == 1 and art == 1:
                     both += 1
@@ -105,14 +103,12 @@ class ExpAnalizer:
 
     @staticmethod
     def ap_k(relev_positions, k):
-        print(relev_positions, k)
         ans = 0
         num_rel = 0
         for rl in relev_positions:
-            if rl < k:
+            if rl <= k:
                 num_rel += 1
                 ans += num_rel / rl
-                return ans
             else:
                 break
         return ans
@@ -121,11 +117,12 @@ class ExpAnalizer:
         apk = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
             right_ans = (str(self.sample[j].codex), self.sample[j].norm)
-            right_ans_num = self.num_to_ind_dict.get(right_ans, -100)
-            actual_art = [self.ind_to_num_dict.get(ind, (-1000, -1000)) for ind in range(right_ans_num - self.epsilon, right_ans_num + self.epsilon)]
+            right_ans_num = self.id_to_num.get(right_ans, -100)
+            actual_art = [self.num_to_id.get(ind, (-1000, -1000)) for ind in
+                          range(right_ans_num - self.epsilon, right_ans_num + self.epsilon + 1)]
             predicted_art = []
             for ans in self.answers[j][:K]:
-                predicted_art.append((ans[0][0], ans[0][1]))
+                predicted_art.append((ans[0], ans[1]))
             relev_positions = []
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
@@ -134,44 +131,33 @@ class ExpAnalizer:
                 apk[k // 2] += self.ap_k(relev_positions, k)
         apk = [a / len(self.sample) for a in apk]
         x = [i for i in range(1, K + 1, 2)]
-        print(apk)
 
-        plt.plot(x, apk, color='red', label='Статьи')
-        plt.ylabel('MAP(k)')
-        plt.xlabel('Количество статей в топе')
-        plt.legend()
-        plt.savefig('map.png')
-        plt.show()
+        self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map.png')
 
     def ndcg(self, K):
-        x = []
-        y_articles = []
+        ndcg = [0] * ((K + 1) // 2)
+        for j in range(len(self.sample)):
+            right_ans = (str(self.sample[j].codex), self.sample[j].norm)
+            right_ans_num = self.id_to_num.get(right_ans, -100)
+            actual_art = [self.num_to_id.get(ind, (-1000, -1000)) for ind in
+                          range(right_ans_num - self.epsilon, right_ans_num + self.epsilon + 1)]
+            predicted_art = []
+            for ans in self.answers[j][:K]:
+                predicted_art.append((str(ans[0]), ans[1]))
+            relev_positions = []
+            for i, pa in enumerate(predicted_art):
+                if pa in actual_art:
+                    relev_positions.append(i + 1)
+            for k in range(1, K + 1, 2):
+                for r in relev_positions:
+                    if r <= k:
+                        ndcg[k // 2] += 1/math.log(r + 1, 2)
+        ndcg = [a / len(self.sample) for a in ndcg]
+        x = [i for i in range(1, K + 1, 2)]
 
-        for i in range(2, K, 2):
-            sum_ndcg = 0
-            for j in range(len(self.sample)):
-                answ = self.answers[j][:i]
-                scores = []
-                ndcg = 0
-                for k, ans in enumerate(answ):
-                    right_ans = (str(self.sample[j].codex), self.sample[j].norm)
-                    if self.num_to_ind_dict.get(right_ans, -100) - self.epsilon <= self.num_to_ind_dict[
-                        tuple(ans[0])] <= self.num_to_ind_dict.get(right_ans, -100) + self.epsilon:
-                        scores.append(k + 1)
-                        break
-                for k in scores:
-                    print(k)
-                    ndcg += 1 / math.log(k + 1, 2)
-                sum_ndcg += ndcg
-            x.append(i)
-            y_articles.append(sum_ndcg / len(self.sample))
+        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg.png')
 
-        plt.plot(x, y_articles, color='red', label='Статьи')
-        plt.ylabel('NDCG')
-        plt.xlabel('Количество статей в топе')
-        plt.legend()
-        plt.savefig('ndcg.png')
-        plt.show()
+
 
 
     @staticmethod
@@ -182,54 +168,23 @@ class ExpAnalizer:
         return 0
 
     def mrr(self, K):
-        mrr = [0] * (K // 2)
+        mrr = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            # print(self.sample[j].answer)
             right_ans = (str(self.sample[j].codex), self.sample[j].norm)
-            right_ans_num = self.num_to_ind_dict.get(right_ans, -100)
-            actual_art = [self.ind_to_num_dict.get(ind, (-1000, -1000)) for ind in
-                          range(right_ans_num - self.epsilon, right_ans_num + self.epsilon)]
-            # print(actual_art)
+            right_ans_num = self.id_to_num.get(right_ans, -100)
+            actual_art = [self.num_to_id.get(ind, (-1000, -1000)) for ind in
+                          range(right_ans_num - self.epsilon, right_ans_num + self.epsilon + 1)]
             predicted_art = []
             for ans in self.answers[j][:K]:
-                predicted_art.append((ans[0][0], ans[0][1]))
+                predicted_art.append((ans[0], ans[1]))
             relev_positions = []
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
                     relev_positions.append(i + 1)
-            for k in range(1, K, 2):
+            for k in range(1, K + 1, 2):
                 mrr[k // 2] += self.mrr_k(relev_positions, k)
         mrr = [a / len(self.sample) for a in mrr]
-        x = [i for i in range(1, K, 2)]
-        # print(mrr)
+        x = [i for i in range(1, K + 1, 2)]
 
-        plt.plot(x, mrr, color='red', label='Статьи')
-        plt.ylabel('MRR')
-        plt.xlabel('Количество статей в топе')
-        plt.legend()
-        plt.savefig('mrr.png')
-        plt.show()
+        self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr.png')
 
-
-
-
-# Ниже приведен ПРИМЕР использования с Epsilon = 3
-
-'''
-
-n = 5
-tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), "tf_idf/tf_idf_1")
-fnIdxCodex2Article = "idx/codex2article.pickle"
-pravoved = pravoved_recognizer.norms_codexes_to_normal("codexes")
-ans_arr = [0] * len(pravoved)
-for i in range(len(pravoved)):
-    ans_arr[i] = tfidf_searcher.request_processing_input_without_print2(pravoved[i].question)
-
-
-test = Analizer(ans_arr, pravoved, 3, fnIdxCodex2Article)
-test.top_n_cover(11, True)
-test.map_k(11)
-test.ndcg(11)
-test.mrr(11)
-
-'''
