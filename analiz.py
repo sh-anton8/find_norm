@@ -1,15 +1,10 @@
 '''
-
 INFO: Данный файл содержит класс Analizer для оценки качества модели
-
 Описание: Данный класс позволяет посчитать и получить графики для следующих метрик:
-
 - map@K
 - nDCG@K
 - mrr@K
-
 А также получить график покрытия в зависимости от количества статей в топе
-
 '''
 
 
@@ -17,19 +12,15 @@ import matplotlib.pyplot as plt
 import math
 import os
 
-from tools.simple_corp import SimpleCorp
-
-
 from tools.relative_paths_to_directories import path_to_directories
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
-s = SimpleCorp.load("codexes_corp_articles", os.path.join(PATH_TO_FILES, 'corp'))
 
 class Analizer:
     # sample - выборка (массив структур Запрос (request) из pravoved_recognizer.py)
     # answers - ответы модели (массив i эл-т которого - массив содержащий отсортированные по релевантности ответы на
-    # i-ый запрос выборки в виде (номер в нашей нумерации, релевантность данной статьи))
+    # i-ый запрос выборки в виде (номер в нашей нумерации))
     def __init__(self, answers, sample):
         self.sample = sample
         self.answers = answers
@@ -44,14 +35,13 @@ class Analizer:
         plt.show()
 
     # n - верхняя граница на количество статей в топе
-    def top_n_cover(self, n, in_percent = True):
+    def top_n_cover(self, n, in_percent=True):
 
         x = []
         y_codex = []
         y_articles = []
 
         print(len(self.sample))
-
 
         for i in range(1, n, 2):
             codex = 0
@@ -64,9 +54,9 @@ class Analizer:
                 answer = self.answers[ind][:i]
                 ind += 1
                 for ans in answer:
-                    if ans[0][0] == samp.codex:
+                    if ans[0] == samp.codex:
                         cod = 1
-                    if ans[0][1] == samp.norm:
+                    if ans[1] == samp.norm:
                         art = 1
                 if cod == 1 and art == 1:
                     both += 1
@@ -120,7 +110,7 @@ class Analizer:
             actual_art = [(self.sample[j].codex, self.sample[j].norm)]
             predicted_art = []
             for ans in self.answers[j][:K]:
-                predicted_art.append((ans[0][0], ans[0][1]))
+                predicted_art.append((ans[0], ans[1]))
             relev_positions = []
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
@@ -135,12 +125,11 @@ class Analizer:
 
     def ndcg(self, K):
         ndcg = [0] * ((K + 1) // 2)
-        print(len(self.sample))
         for j in range(len(self.sample)):
             actual_art = [(self.sample[j].codex, self.sample[j].norm)]
             predicted_art = []
             for ans in self.answers[j][:K]:
-                predicted_art.append((ans[0][0], ans[0][1]))
+                predicted_art.append((ans[0], ans[1]))
             relev_positions = []
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
@@ -153,7 +142,7 @@ class Analizer:
         x = [i for i in range(1, K + 1, 2)]
         print(ndcg)
 
-        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='map.png')
+        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg.png')
 
 
 
@@ -171,7 +160,7 @@ class Analizer:
             actual_art = [(self.sample[j].codex, self.sample[j].norm)]
             predicted_art = []
             for ans in self.answers[j][:K]:
-                predicted_art.append((ans[0][0], ans[0][1]))
+                predicted_art.append((ans[0], ans[1]))
             relev_positions = []
             for i, pa in enumerate(predicted_art):
                 if pa in actual_art:
@@ -184,22 +173,3 @@ class Analizer:
 
         self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr.png')
 
-
-# Ниже приведен ПРИМЕР использования
-
-'''
-
-n = 5
-tfidf_searcher = search.TFIDF_Search(tokenize_docs.Tokenizer('text'), "tf_idf/tf_idf_1")
-pravoved = pravoved_recognizer.norms_codexes_to_normal("codexes")
-ans_arr = [0] * len(pravoved)
-for i in range(len(pravoved)):
-    ans_arr[i] = tfidf_searcher.request_processing_input_without_print2(pravoved[i].question)
-
-test = Analizer(ans_arr, pravoved)
-test.top_n_cover(11, True)
-test.map_k(11)
-test.ndcg(11)
-test.mrr(11)
-
-'''
