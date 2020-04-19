@@ -16,7 +16,7 @@ class Baseline_Search():
         fin_feature = 'Final relev'
         ids = [ans[0] for ans in search_result]
         for i in range(1, len(search_result[0])):
-            if (i != len(search_result[0]) - 1):
+            if i != len(search_result[0]) - 1:
                 d[feature_name + str(i)] = [ans[i] for ans in search_result]
             else:
                 d[fin_feature] = [ans[i] for ans in search_result]

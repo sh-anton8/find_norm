@@ -3,6 +3,7 @@
 import re
 import tools.coll as coll
 import os
+import json
 
 from tools.relative_paths_to_directories import path_to_directories
 
@@ -20,6 +21,10 @@ class Request:
     def __str__(self):
         return 'question:{}\n\nanswer:{}\n\ncodex: {}\nnorm: {}\n-------------\n'\
             .format(self.question, self.answer, self.codex, self.norm)
+
+    def create_dict(self):
+        request_dict = {'question': self.question, 'answer': self.answer, 'norm_cod': (self.codex, self.norm)}
+        return request_dict
 
 
 class Separator:
@@ -41,7 +46,7 @@ class Separator:
             x2 = k.find('\t\t', x1)
             x3 = k.find('\t\t\t', x2)
             if x3 == -1:
-                s = Request(k[:x1], k[x1 + 1: x2], k[x2 + 1:])
+                s = Request(k[:x1], k[x1 + 1: x2], k[x2 + 2:])
                 ans.append(s)
         return ans
 
@@ -77,10 +82,6 @@ class Separator:
         return codexes_requests
 
 
-'''
-print(len(codexes_requests))
-'''
-
 def dict_codexes_creator():
     codexes = dict()
     codexes[('нк', 'налог')] = [1, 2]
@@ -102,7 +103,7 @@ def dict_codexes_creator():
     return codexes, poss_codexes
 
 
-def norms_codexes_to_normal(codex_directory):
+def norms_codexes_to_normal(codex_directory, save_to_json=False):
     s = Separator(os.path.join(PATH_TO_FILES, "pravoved_articles.txt"))
     codexes_requests = s.fill_requests()
     codexes_out = []
@@ -140,9 +141,16 @@ def norms_codexes_to_normal(codex_directory):
         for cod in co.codex:
             if (str(cod), co.norm) in set_numbers:
                 co.codex = str(cod)
-
-    for co in codexes_out:
         if isinstance(co.codex, list):
             del co
 
+    if save_to_json:
+        json_codexes = []
+        for co in codexes_out:
+            json_codexes.append(co.create_dict())
+        with open(os.path.join(PATH_TO_FILES, 'pravoved_one_answer.json'), 'w') as f:
+            json.dump(json_codexes, f, indent=2, ensure_ascii=False)
+
     return codexes_out
+
+norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"), save_to_json=True)

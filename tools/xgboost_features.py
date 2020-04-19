@@ -4,6 +4,7 @@ import os
 from tools.features import Features
 from tools import pravoved_recognizer
 from tqdm import tqdm
+from tools.simple_corp import SimpleCorp
 
 from tools.relative_paths_to_directories import path_to_directories, CNT_ARTICLES
 
@@ -20,22 +21,20 @@ def is_article_relev(r: Request, art: tp.Tuple[str, str]) -> bool:
         return True
     return False
 
-
 def find_feautures_for_request(request: Request, path_to_featute_file: str,
-                               feature: Features, is_train=False):
+                               feature: Features, corpus: SimpleCorp, is_train=False):
     #записывает целевую переменную и признаки данного запроса в файл
-    tfidf_file = feature.first_tf_idf
     with open(path_to_featute_file, 'a+', encoding='utf-8') as x:
         all_features_for_request = [[0] * CNT_ARTICLES for _ in range(FEATURES_NUM)]
-        for i in range(len(tfidf_file.num_to_num_dict.keys())):
-            all_features_for_request[0][i] = feature.get_bm25_feature(request.question, tfidf_file.num_to_num_dict[i])
-            all_features_for_request[1][i] = feature.feature_art_name_intersection(request.question, tfidf_file.num_to_num_dict[i])
-            all_features_for_request[2][i] = feature.get_doc_len_feature(request.question, tfidf_file.num_to_num_dict[i])
+        for i, doc_id in enumerate(sorted(corpus.corpus.keys())):
+            all_features_for_request[0][i] = feature.get_bm25_feature(request.question, doc_id)
+            all_features_for_request[1][i] = feature.feature_art_name_intersection(request.question, doc_id)
+            all_features_for_request[2][i] = feature.get_doc_len_feature(request.question, doc_id)
         cos_simils = feature.features_cos_sim(request)
         for i, cs in enumerate(cos_simils):
-            all_features_for_request[i + 3] = [el[0] for el in cs]
-        for i in range(CNT_ARTICLES):
-            is_relev = is_article_relev(request, tfidf_file.num_to_num_dict[i])
+            all_features_for_request[i + 3] = cs
+        for i, doc_id in enumerate(sorted(corpus.corpus.keys())):
+            is_relev = is_article_relev(request, doc_id)
             if is_train:
                 if is_relev:
                     x.write('1 ')
@@ -86,12 +85,12 @@ def features_to_files(train_sample: int, test_sample: int) -> None:
 
     t = tqdm(total=len(train_pravoved_requests))
     for i, req in enumerate(train_pravoved_requests):
-        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_train.txt"), feature, is_train=True)
+        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_train.txt"), feature, feature.corpus, is_train=True)
         t.update(1)
     t.close()
 
     t = tqdm(total=len(test_pravoved_requests))
     for i, req in enumerate(test_pravoved_requests):
-        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_test.txt"), feature, is_train=True)
+        find_feautures_for_request(req, os.path.join(PATH_TO_LEARNING_TO_RANK, "x_test.txt"), feature, feature.corpus, is_train=True)
         t.update(1)
     t.close()

@@ -29,7 +29,7 @@ def build_tf_idfs(corpus, tokenizer, tf_idf_path, num, is_tokenized = True, **pa
 # директория на папку с кодексами
 codexes_dir = os.path.join(PATH_TO_ROOT, "codexes")
 
-tokenized_corp = SimpleCorp.load('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}\corp')
+tokenized_corp = SimpleCorp.load('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}/corp')
 tokenizer = Tokenizer()
 
 params = make_params((1, 1))

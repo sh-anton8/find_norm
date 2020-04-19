@@ -13,17 +13,18 @@ INFO: Данный файл содержит класс Analizer для оцен
 '''
 
 
-import tools.search as search
-import tools.pravoved_recognizer as pravoved_recognizer
-import tools.tokenize_docs as tokenize_docs
 import matplotlib.pyplot as plt
 import math
 import os
+
+from tools.simple_corp import SimpleCorp
+
 
 from tools.relative_paths_to_directories import path_to_directories
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+s = SimpleCorp.load("codexes_corp_articles", os.path.join(PATH_TO_FILES, 'corp'))
 
 class Analizer:
     # sample - выборка (массив структур Запрос (request) из pravoved_recognizer.py)
@@ -134,6 +135,7 @@ class Analizer:
 
     def ndcg(self, K):
         ndcg = [0] * ((K + 1) // 2)
+        print(len(self.sample))
         for j in range(len(self.sample)):
             actual_art = [(self.sample[j].codex, self.sample[j].norm)]
             predicted_art = []

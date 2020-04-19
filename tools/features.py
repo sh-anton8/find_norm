@@ -10,6 +10,7 @@ from pymorphy2 import MorphAnalyzer
 from collections import Counter
 from nltk.corpus import stopwords
 from tools import coll
+from tools.simple_corp import SimpleCorp
 
 from tools.relative_paths_to_directories import path_to_directories
 
@@ -31,6 +32,7 @@ class Features:
         self.tfidfs = []
         self.art_names = {}
         self.first_tf_idf = None
+        self.corpus = SimpleCorp.load('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}/corp')
         if not os.path.isfile(bm_25_file):
             self.bm_obj = My_BM(PATH_TO_INV_IND)
             self.bm_obj.save(bm_25_file)
@@ -72,9 +74,9 @@ class Features:
     def _tfidf_cnt(self, ngramm: tp.Tuple[int, int], inv_ind_path: str, tfidf_path: str, num: int,
                   norm: str = 'l2', use_idf: bool = True, sublinear_tf: bool = False) -> None:
         # считает tfidf по корпусу с параметрами
-        mod = TFIDF(inv_ind_path, ngramm=ngramm, norm=norm, use_idf=use_idf, sublinear_tf=sublinear_tf)
-        mod.count_tf_idf()
-        mod.save(tfidf_path + '_' + str(num))
+        tfidf = TFIDF(tokenizer=Tokenizer(), vectorizer_params={ngramm:ngramm, norm:norm, use_idf:use_idf, sublinear_tf:sublinear_tf})
+        tfidf.build_on(self.corpus, tokenized=True)
+        tfidf.save(tfidf_path + '_' + str(num))
 
     def _if_file_not_exist(self, tfidf_path, num):
         # проверяет существует ли файл
@@ -117,16 +119,16 @@ class Features:
 
     def _count_cos_similarity(self, req: Request, tfidf_loaded):
         # считает косинусиновую меру для заданного запроса и одного заданного tf_idf
-        t = Tokenizer(req.question)
-        req = t.tokenize(self.cash, self.morph, self.stop_words)
-        req_tfidf_dict = tfidf_loaded.request_counting([" ".join(req)])
-        cos_sim = cosine_similarity(tfidf_loaded.tfidf_matrix, req_tfidf_dict)
-        return cos_sim
+        t = Tokenizer()
+        query = t.tokenize(req.question)
+        query_tfidf = tfidf_loaded.vectorizer.transform([" ".join(query)])
+        raw_sims = cosine_similarity(query_tfidf, tfidf_loaded.tfidf_matrix).reshape(-1)
+        return raw_sims
 
     def dict_for_art_names(self):
         codex_path = os.path.join(PATH_TO_ROOT, "codexes")
         for cod in os.listdir(codex_path):
-            _, art_n = coll.iter_by_docs(cod, codex_path, 'art_name2', 1)
+            _, art_n = coll.iter_by_docs(cod, codex_path, 'art_name', 1)
             self.art_names.update(art_n)
 
     def feature_art_name_intersection(self,  req: str, article: (str, str)) -> int:

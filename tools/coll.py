@@ -53,18 +53,7 @@ def iter_by_art(collect, doc_id):
             d_rev[j] = (doc_id, num_art[:-1])
     return d_art, d_rev
 
-
 def art_name(collect, doc_id):
-    name = {}
-    for i, num_chp in collect.itersplit(chp_sep_word):
-        new_col = Collection(i)
-        num_chp = num_chp.split(' ')[1]
-        for j, num_art in new_col.itersplit(art_sep_word_name):
-            name[(doc_id, num_chp[:-1], num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
-    return name
-
-
-def art_name2(collect, doc_id):
     name = {}
     name2 = {}
     for i, num_chp in collect.itersplit(chp_sep_word):
@@ -135,8 +124,6 @@ def iter_by_docs(docs, dir, iter_by, it): #итерирование по док�
             return art(c)
         elif iter_by == 'art_name':
             return art_name(c, doc_id)
-        elif iter_by == 'art_name2':
-            return art_name2(c, doc_id)
         else:
             print("MISTAKE")
             return

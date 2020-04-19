@@ -17,6 +17,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 def relev(features):
     return sum(features) / len(features)
 
+
 path_to_tf_idf = os.path.join(PATH_TO_TF_IDF, 'tf_idf')
 tokenizer = Tokenizer()
 
