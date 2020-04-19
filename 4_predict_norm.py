@@ -1,8 +1,9 @@
 from tools.simple_corp import SimpleCorp
 from tools.tokenize_docs import Tokenizer
 from tools.tfidf import TFIDF
+from tools.inverse_index import InvIndex
 from tools.search import Baseline_Search
-import pandas as pd
+
 import os
 
 
@@ -19,7 +20,6 @@ def average_func(row):
     return sum(r_list)/len(r_list)
 
 
-
 path_to_tf_idf = os.path.join(PATH_TO_TF_IDF, 'tf_idf')
 tokenizer = Tokenizer()
 
@@ -27,9 +27,10 @@ tokenizer = Tokenizer()
 searchers_array = []
 for i in range(1, 7):
     searchers_array.append(TFIDF.load(path_to_tf_idf + '_' + str(i)))
+searchers_array.append(InvIndex.load(PATH_TO_INV_IND))
 
 # поиск по запросу query
 b_search = Baseline_Search(average_func, searchers_array)
 query = 'Симметричные корректировки осуществляются в порядке, установленном настоящей статьей.'
-search_result = b_search.search(query, dataFrReturned=False)
+search_result = b_search.search(query, topN=10, dataFrReturned=True)
 print(search_result)
