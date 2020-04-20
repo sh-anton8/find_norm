@@ -10,6 +10,7 @@ from tools.relative_paths_to_directories import path_to_directories
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
+
 class Request:
     def __init__(self, theme, question, answer):
         self.theme = theme
@@ -23,8 +24,14 @@ class Request:
             .format(self.question, self.answer, self.codex, self.norm)
 
     def create_dict(self):
-        request_dict = {'question': self.question, 'answer': self.answer, 'norm_cod': (self.codex, self.norm)}
+        request_dict = {'question': self.question, 'answer': self.answer, 'codex': self.codex,
+                        'norm': self.norm}
         return request_dict
+
+    @staticmethod
+    def load(file):
+        with open(file, 'r') as f:
+            return json.load(f)
 
 
 class Separator:
@@ -153,4 +160,5 @@ def norms_codexes_to_normal(codex_directory, save_to_json=False):
 
     return codexes_out
 
-norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"), save_to_json=True)
+
+#norms_codexes_to_normal(os.path.join(PATH_TO_ROOT, "codexes"), save_to_json=True)

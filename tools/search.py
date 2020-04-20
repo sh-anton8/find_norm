@@ -1,13 +1,18 @@
 # Антон
 
+#coding: utf-8
+
 import pandas as pd
+import os
+
 
 # базовый поисковик (агрегатор)
 # searchers - массив поисковиков (например массив классов TFIDF)
-class Baseline_Search():
-    def __init__(self, relev_func, searchers):
+class Baseline_Search:
+    def __init__(self, relev_func=None, searchers=None):
         self.relev_func = relev_func
         self.searchers = searchers
+        self.df_to_pickle = None
 
 
     # функция поиска (запрос, # документов в топе,
@@ -16,7 +21,7 @@ class Baseline_Search():
     def search(self, query, topN = 10, dataFrReturned = True):
 
         # проверка, что передан зотя бы 1 поисковик
-        if (len(self.searchers) == 0):
+        if not self.searchers:
             print("ERROR! NO FEATURES PASSED")
             return
 
@@ -34,6 +39,8 @@ class Baseline_Search():
                 result = result.join(newDF, on='doc_id')
             ind += 1
 
+        self.df_to_pickle = result
+
         # добавляем финальную релевантность по заданной функции
         result['FinalRel'] = result.apply(self.relev_func, axis=1)
         result = result.sort_values(by='FinalRel', ascending=False)
@@ -43,3 +50,14 @@ class Baseline_Search():
                 return result.head(topN)
 
         return result['doc_id'].tolist()[:topN]
+
+    # загрузка таблицы с признаками в path
+    def save_df_features_to_pickle(self, path):
+        if self.df_to_pickle is not None:
+            self.df_to_pickle.to_pickle(path)
+
+    # чтение таблицы с признаками
+    @staticmethod
+    def load_features(path):
+        if os.path.exists(path):
+            return pd.read_pickle(path)

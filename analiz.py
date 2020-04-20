@@ -31,7 +31,7 @@ class Analizer:
         plt.ylabel(ylabel)
         plt.xlabel('Количество статей в топе')
         plt.legend()
-        plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', name_file))
+        plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', f'{name_file}_analiz.png'))
         plt.show()
 
     # n - верхняя граница на количество статей в топе
@@ -121,7 +121,7 @@ class Analizer:
         x = [i for i in range(1, K + 1, 2)]
         print(apk)
 
-        self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map.png')
+        self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map')
 
     def ndcg(self, K):
         ndcg = [0] * ((K + 1) // 2)
@@ -142,7 +142,7 @@ class Analizer:
         x = [i for i in range(1, K + 1, 2)]
         print(ndcg)
 
-        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg.png')
+        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg')
 
 
 
@@ -171,5 +171,5 @@ class Analizer:
         x = [i for i in range(1, K + 1, 2)]
         print(mrr)
 
-        self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr.png')
+        self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr')
 

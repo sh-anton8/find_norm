@@ -13,8 +13,8 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 # директория на папку с кодексами
 codexes_dir = os.path.join(PATH_TO_ROOT, "codexes")
 
-simple_corp = SimpleCorp.load('codexes_corp_articles', f'{PATH_TO_FILES}\corp')
-tokenized_corp = SimpleCorp.load('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}\corp')
+simple_corp = SimpleCorp.load('codexes_corp_articles', f'{PATH_TO_FILES}/corp')
+tokenized_corp = SimpleCorp.load('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}/corp')
 
 tokenizer = Tokenizer()
 

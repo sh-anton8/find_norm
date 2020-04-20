@@ -40,7 +40,7 @@ class ExpAnalizer:
         plt.ylabel(ylabel)
         plt.xlabel('Количество статей в топе')
         plt.legend()
-        plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', name_file))
+        plt.savefig(os.path.join(PATH_TO_FILES, 'metrics_count', f'{name_file}_exper.png'))
         plt.show()
 
     # n - верхняя граница на количество статей в топе
@@ -109,6 +109,7 @@ class ExpAnalizer:
             if rl <= k:
                 num_rel += 1
                 ans += num_rel / rl
+                return ans
             else:
                 break
         return ans
@@ -132,7 +133,7 @@ class ExpAnalizer:
         apk = [a / len(self.sample) for a in apk]
         x = [i for i in range(1, K + 1, 2)]
 
-        self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map.png')
+        self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map')
 
     def ndcg(self, K):
         ndcg = [0] * ((K + 1) // 2)
@@ -152,10 +153,11 @@ class ExpAnalizer:
                 for r in relev_positions:
                     if r <= k:
                         ndcg[k // 2] += 1/math.log(r + 1, 2)
+                        break
         ndcg = [a / len(self.sample) for a in ndcg]
+        print(ndcg)
         x = [i for i in range(1, K + 1, 2)]
-
-        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg.png')
+        self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg')
 
 
 
@@ -186,5 +188,5 @@ class ExpAnalizer:
         mrr = [a / len(self.sample) for a in mrr]
         x = [i for i in range(1, K + 1, 2)]
 
-        self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr.png')
+        self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr')
 

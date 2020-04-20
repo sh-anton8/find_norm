@@ -20,7 +20,8 @@ def read_predictions_from_file():
     j = 0
     while i + 6322 <= len(predictions):
         predictions_by_queries.append([])
-        predictions_by_queries[j].extend(list(sorted(predictions[i:i + 6322], key= lambda x:(x[1], -int(x[0][0])), reverse=True)))
+        sorted_pred = sorted(predictions[i:i + 6322], key=lambda x:x[1], reverse=True)
+        predictions_by_queries[j].extend([x[0] for x in sorted_pred])
         j += 1
         i += 6322
     return predictions_by_queries
