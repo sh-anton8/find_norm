@@ -61,9 +61,9 @@ class ExpAnalizer:
                 answer = self.answers[ind][:i]
                 ind += 1
                 for ans in answer:
-                    if ans[0] == samp.codex:
+                    if ans[0] == samp['codex']:
                         cod = 1
-                    right_ans = (str(samp.codex), samp.norm)
+                    right_ans = (str(samp['codex']), samp['norm'])
                     if self.id_to_num.get(right_ans, -100) - self.epsilon <= self.id_to_num[(ans)]\
                             <= self.id_to_num.get(right_ans, -100) + self.epsilon:
                         art = 1
@@ -117,7 +117,7 @@ class ExpAnalizer:
     def map_k(self, K):
         apk = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            right_ans = (str(self.sample[j].codex), self.sample[j].norm)
+            right_ans = (str(self.sample[j]['codex']), self.sample[j]['norm'])
             right_ans_num = self.id_to_num.get(right_ans, -100)
             actual_art = [self.num_to_id.get(ind, (-1000, -1000)) for ind in
                           range(right_ans_num - self.epsilon, right_ans_num + self.epsilon + 1)]
@@ -138,7 +138,7 @@ class ExpAnalizer:
     def ndcg(self, K):
         ndcg = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            right_ans = (str(self.sample[j].codex), self.sample[j].norm)
+            right_ans = (str(self.sample[j]['codex']), self.sample[j]['norm'])
             right_ans_num = self.id_to_num.get(right_ans, -100)
             actual_art = [self.num_to_id.get(ind, (-1000, -1000)) for ind in
                           range(right_ans_num - self.epsilon, right_ans_num + self.epsilon + 1)]
@@ -172,7 +172,7 @@ class ExpAnalizer:
     def mrr(self, K):
         mrr = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            right_ans = (str(self.sample[j].codex), self.sample[j].norm)
+            right_ans = (str(self.sample[j]['codex']), self.sample[j]['norm'])
             right_ans_num = self.id_to_num.get(right_ans, -100)
             actual_art = [self.num_to_id.get(ind, (-1000, -1000)) for ind in
                           range(right_ans_num - self.epsilon, right_ans_num + self.epsilon + 1)]

@@ -18,14 +18,14 @@ CORPUS = SimpleCorp.load("codexes_corp_articles", os.path.join(PATH_TO_FILES, "c
 FEATURES_NUM = 6
 
 
-def is_article_relev(r: Request, art: tp.Tuple[str, str]) -> bool:
+def is_article_relev(r, art: tp.Tuple[str, str]) -> bool:
     # релевантен ли запрос статье
-    if (str(r.codex), str(r.norm)) == art:
+    if (str(r['codex']), str(['r.norm'])) == art:
         return True
     return False
 
 
-def relev_articles_for_features(request: Request):
+def relev_articles_for_features(request):
     # возвращение вектора релевантностей для корпуса статей по данному запросу
     relevs = []
     for i, doc_id in enumerate(CORPUS.corpus.keys()):
@@ -62,7 +62,7 @@ def save_feature_table(df: pd.DataFrame, path: str):
     df.to_pickle(path)
 
 
-def create_feature_file_for_request(request: Request, feature: Features, path_to_file) -> None:
+def create_feature_file_for_request(request, feature: Features, path_to_file) -> None:
     # список релевантностей для статей корпуса
     relevs = relev_articles_for_features(request)
 

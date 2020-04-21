@@ -17,15 +17,12 @@ def preparation_features_for_xgboost(num: int, ff) -> None:
     # запись таблицы признаков с номером num в file_to_save
     path_to_file = os.path.join(PATH_TO_FEATURE_DF, f'{num}.pickle')
     feature_df = pd.read_pickle(path_to_file)
-    feature_df.to_string()
-    '''
     for index, row in feature_df.iterrows():
         feature_list = [str(row['is_relev'])]
         for c in feature_df.columns:
             if c != 'is_relev' and c != 'doc_id':
                 feature_list.append(f'{int(c) + 1}:{row[c]}')
         ff.write(' '.join(feature_list) + '\n')
-    '''
 
 
 def create_group_file(requests_list: str, path_to_file: str) -> None:

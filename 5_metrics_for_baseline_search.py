@@ -1,4 +1,4 @@
-from tools import pravoved_recognizer
+from tools.pravoved_recognizer import Request
 from tools.tokenize_docs import Tokenizer
 from tools.tfidf import TFIDF
 from tools.search import Baseline_Search
@@ -17,7 +17,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 # путь к файлу с массивом ответов
 PATH_TO_ANS_FILE = PATH_TO_ROOT + "/files/anwers_baseline"
-pravoved = pravoved_recognizer.norms_codexes_to_normal(PATH_TO_ROOT + "/codexes")
+pravoved = Request.load(os.path.join(PATH_TO_FILES, "pravoved_one_answer.json"))
 
 # проверим файл на существование
 # если не существует, то считаем ответы
@@ -46,7 +46,7 @@ if not os.path.exists(PATH_TO_ANS_FILE):
     # заполняем массив
     t = tqdm(total=len(pravoved))
     for i in range(len(pravoved)):
-        ans_arr[i] = b_search.search(pravoved[i].question, len(searchers_array[0].doc_ids), dataFrReturned=False)
+        ans_arr[i] = b_search.search(pravoved[i]['question'], len(searchers_array[0].doc_ids), dataFrReturned=False)
         t.update(1)
     t.close()
 

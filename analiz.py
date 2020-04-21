@@ -54,9 +54,9 @@ class Analizer:
                 answer = self.answers[ind][:i]
                 ind += 1
                 for ans in answer:
-                    if ans[0] == samp.codex:
+                    if ans[0] == samp['codex']:
                         cod = 1
-                    if ans[1] == samp.norm:
+                    if ans[1] == samp['norm']:
                         art = 1
                 if cod == 1 and art == 1:
                     both += 1
@@ -107,7 +107,7 @@ class Analizer:
     def map_k(self, K):
         apk = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            actual_art = [(self.sample[j].codex, self.sample[j].norm)]
+            actual_art = [(self.sample[j]['codex'], self.sample[j]['norm'])]
             predicted_art = []
             for ans in self.answers[j][:K]:
                 predicted_art.append((ans[0], ans[1]))
@@ -126,7 +126,7 @@ class Analizer:
     def ndcg(self, K):
         ndcg = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            actual_art = [(self.sample[j].codex, self.sample[j].norm)]
+            actual_art = [(self.sample[j]['codex'], self.sample[j]['norm'])]
             predicted_art = []
             for ans in self.answers[j][:K]:
                 predicted_art.append((ans[0], ans[1]))
@@ -157,7 +157,7 @@ class Analizer:
     def mrr(self, K):
         mrr = [0] * ((K + 1) // 2)
         for j in range(len(self.sample)):
-            actual_art = [(self.sample[j].codex, self.sample[j].norm)]
+            actual_art = [(self.sample[j]['codex'], self.sample[j]['norm'])]
             predicted_art = []
             for ans in self.answers[j][:K]:
                 predicted_art.append((ans[0], ans[1]))

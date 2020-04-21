@@ -1,5 +1,5 @@
 import os
-from tools.pravoved_recognizer import norms_codexes_to_normal
+from tools.pravoved_recognizer import norms_codexes_to_normal, Request
 
 
 # создание необходимых директорий

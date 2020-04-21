@@ -9,6 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from collections import Counter
 from tools import coll
 from tools.simple_corp import SimpleCorp
+from typing import Dict
 
 from tools.relative_paths_to_directories import path_to_directories
 
@@ -105,17 +106,17 @@ class Features:
                 self.first_tf_idf = tfidf_cnt
             self.tfidfs.append(tfidf_cnt)
 
-    def features_cos_sim(self, req: Request):
+    def features_cos_sim(self, req: Dict[str, str]):
         # считает косинусиновую меру для заданного запроса и всех tf_idf
         cos_simil = [0] * 6
         for i in range(6):
             cos_simil[i] = self._count_cos_similarity(req, self.tfidfs[i])
         return cos_simil
 
-    def _count_cos_similarity(self, req: Request, tfidf_loaded):
+    def _count_cos_similarity(self, req: Dict[str, str], tfidf_loaded):
         # считает косинусиновую меру для заданного запроса и одного заданного tf_idf
         t = Tokenizer()
-        query = t.tokenize(req.question)
+        query = t.tokenize(req['question'])
         query_tfidf = tfidf_loaded.vectorizer.transform([" ".join(query)])
         raw_sims = cosine_similarity(query_tfidf, tfidf_loaded.tfidf_matrix).reshape(-1)
         return raw_sims
