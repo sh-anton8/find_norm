@@ -12,7 +12,7 @@ from tools.relative_paths_to_directories import path_to_directories
 должны быть одинаковые
 '''
 TRAIN_SAMPLE = (0, 1000)
-TEST_SAMPLE = (1001, 1427)
+TEST_SAMPLE = (1001, 1428)
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
