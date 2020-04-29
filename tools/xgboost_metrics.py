@@ -1,5 +1,5 @@
 import os
-from tools.relative_paths_to_directories import path_to_directories
+from tools.relative_paths_to_directories import path_to_directories, CNT_ARTICLES
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25,\
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
@@ -18,10 +18,10 @@ def read_predictions_from_file():
     predictions_by_queries = []
     i = 0
     j = 0
-    while i + 6322 <= len(predictions):
+    while i + CNT_ARTICLES <= len(predictions):
         predictions_by_queries.append([])
-        sorted_pred = sorted(predictions[i:i + 6322], key=lambda x:x[1], reverse=True)
+        sorted_pred = sorted(predictions[i:i + CNT_ARTICLES], key=lambda x:x[1], reverse=True)
         predictions_by_queries[j].extend([x[0] for x in sorted_pred])
         j += 1
-        i += 6322
+        i += CNT_ARTICLES
     return predictions_by_queries

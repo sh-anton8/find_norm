@@ -24,7 +24,7 @@ class Request:
             .format(self.question, self.answer, self.codex, self.norm)
 
     def create_dict(self):
-        request_dict = {'question': self.question, 'answer': self.answer, 'codex': self.codex,
+        request_dict = {'theme': self.theme, 'question': self.question, 'answer': self.answer, 'codex': self.codex,
                         'norm': self.norm}
         return request_dict
 

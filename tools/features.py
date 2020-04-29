@@ -116,7 +116,7 @@ class Features:
     def _count_cos_similarity(self, req: Dict[str, str], tfidf_loaded):
         # считает косинусиновую меру для заданного запроса и одного заданного tf_idf
         t = Tokenizer()
-        query = t.tokenize(req['question'])
+        query = t.tokenize(req['theme'])
         query_tfidf = tfidf_loaded.vectorizer.transform([" ".join(query)])
         raw_sims = cosine_similarity(query_tfidf, tfidf_loaded.tfidf_matrix).reshape(-1)
         return raw_sims

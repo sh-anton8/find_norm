@@ -21,7 +21,7 @@ def train_xgboost_model():
 
     features = pd.read_csv(f"{PATH_TO_LEARNING_TO_RANK}/x_train.csv", sep=',')
     y_train = features['is_rel']
-    x_train = features.drop(['doc_id','is_rel'],axis=1)
+    x_train = features.drop(['doc_id','is_rel', '7'],axis=1)
     train_dmatrix = xgb.DMatrix(x_train, y_train)
     train_dmatrix.set_group(group_train)
 

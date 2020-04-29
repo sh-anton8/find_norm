@@ -63,7 +63,7 @@ def create_feature_file_for_request(request, path_to_file, all_features) -> None
     # создание списка признаков для запроса по корпус
 
     # создание таблицы признаков для request
-    table_features = request_to_pandas(all_features, relevs, request['question'])
+    table_features = request_to_pandas(all_features, relevs, request['theme'])
 
     # сохранение таблицы в директорию
     save_feature_table(table_features, path_to_file)

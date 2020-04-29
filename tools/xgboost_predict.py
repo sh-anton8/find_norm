@@ -13,7 +13,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 def predict_xgboost_answers(xgb_model):
     # запись прогноза посчитанной модели на тестовой выборке в виде ((кодекс, статья), вероятность)
     features = pd.read_csv(f"{PATH_TO_LEARNING_TO_RANK}/x_test.csv", sep=',')
-    x_test = features.drop(['doc_id', 'is_rel'],axis=1)
+    x_test = features.drop(['doc_id', 'is_rel', '7'],axis=1)
     group_test = []
     with open(os.path.join(PATH_TO_LEARNING_TO_RANK, "gr_test.txt"), "r", encoding="utf-8") as f:
         data = f.readlines()
