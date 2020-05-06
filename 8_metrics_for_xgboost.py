@@ -14,8 +14,8 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 ВАЖНО! Тестовая и тренировочная выборка такие же как в 7_learning_to_rank.py
 '''
 
-TRAIN_SAMPLE = (428, 1428)
-TEST_SAMPLE = (0, 427) #len(pravoved) = 1429
+TRAIN_SAMPLE = (428, 1429)
+TEST_SAMPLE = (0, 428) #len(pravoved) = 1429
 
 
 
@@ -34,4 +34,10 @@ exp_analiz = ExpAnalizer(predictions_by_queries, pravoved[TEST_SAMPLE[0]: TEST_S
 # подсчет одной из метрик ранжирования (также может быть mrr, map, результирующий график
 # сохранятся files/metrics_count
 
+exp_analiz.ndcg(11)
+exp_analiz.map_k(11)
 exp_analiz.mrr(11)
+
+analizer.ndcg(11)
+analizer.map_k(11)
+analizer.mrr(11)

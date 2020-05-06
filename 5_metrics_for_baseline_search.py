@@ -60,8 +60,12 @@ with open(PATH_TO_ANS_FILE, 'rb') as f:
 
 # анализируем
 analizer = Analizer(arr, pravoved)
-analizer.top_n_cover(21, True)
-analizer.map_k(21)
-analizer.ndcg(21)
-analizer.mrr(21)
+analizer2 = ExpAnalizer(arr, pravoved, 3)
+#analizer.top_n_cover(21, True)
+analizer.map_k(11)
+analizer.ndcg(11)
+analizer.mrr(11)
+analizer2.map_k(11)
+analizer2.ndcg(11)
+analizer2.mrr(11)
 

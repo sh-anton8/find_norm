@@ -119,7 +119,7 @@ class Analizer:
                 apk[k // 2] += self.ap_k(relev_positions, k)
         apk = [a / len(self.sample) for a in apk]
         x = [i for i in range(1, K + 1, 2)]
-        print(apk)
+        print("map: ", apk)
 
         self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map')
 
@@ -140,8 +140,7 @@ class Analizer:
                         ndcg[k // 2] += 1/math.log(r + 1, 2)
         ndcg = [a / len(self.sample) for a in ndcg]
         x = [i for i in range(1, K + 1, 2)]
-        print(ndcg)
-
+        print("ndcg ", ndcg)
         self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg')
 
 
@@ -169,7 +168,6 @@ class Analizer:
                 mrr[k // 2] += self.mrr_k(relev_positions, k)
         mrr = [a / len(self.sample) for a in mrr]
         x = [i for i in range(1, K + 1, 2)]
-        print(mrr)
-
+        print("mrr: ", mrr)
         self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr')
 

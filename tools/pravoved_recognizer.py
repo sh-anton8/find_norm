@@ -157,6 +157,7 @@ def norms_codexes_to_normal(codex_directory, save_to_json=False):
             json_codexes.append(co.create_dict())
         with open(os.path.join(PATH_TO_FILES, 'pravoved_one_answer.json'), 'w', encoding='utf-8') as f:
             json.dump(json_codexes, f, indent=2, ensure_ascii=False)
+    print(len(codexes_out))
 
     return codexes_out
 

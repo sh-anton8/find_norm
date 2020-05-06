@@ -59,4 +59,3 @@ class SimpleCorp:
     def load(fname, path):
         with open(f"{path}/{fname}", 'rb') as f:
             return pickle.load(f)
-        

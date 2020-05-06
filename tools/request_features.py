@@ -14,6 +14,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 CORPUS = SimpleCorp.load("codexes_corp_articles", os.path.join(PATH_TO_FILES, "corp"))
 
+
 def is_article_relev(r, art: tp.Tuple[str, str]) -> tp.Tuple[tp.Tuple[str, str], int]:
     # релевантен ли запрос статье
     if (str(r['codex']), str(r['norm'])) == art:

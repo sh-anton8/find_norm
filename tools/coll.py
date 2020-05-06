@@ -4,7 +4,7 @@ import re
 import os
 
 
-chp_sep_word = "Глава [\d\.'I''V''X']* "
+chp_sep_word = "Глава [\d\.'I''V''X']*.*?\n"
 art_sep_word = "Статья [\d\.]+\. "
 par_sep_word = "\n\d\. "
 art_sep_word_name = 'Статья [\d\.]+?\. .*?\n'
@@ -20,8 +20,11 @@ class Collection:  #класс для коллекции
         exp = re.compile(sep)
         if exp.search(self.text, 0) is None:
             return
-        pos = 0
         m1 = exp.search(self.text, 0)
+        pos = m1.start()
+        if sep == chp_sep_word:
+            pos = m1.start()
+            m1 = exp.search(self.text, pos)
         while True:
             m = exp.search(self.text, m1.start() + 1)
             if not m:
@@ -47,21 +50,25 @@ def iter_by_art(collect, doc_id):
     d_art, d_rev = {}, {}
     for i, num_chp in collect.itersplit(chp_sep_word):
         new_col = Collection(i)
+        k = 0
         for j, num_art in new_col.itersplit(art_sep_word_name):
+            if k == 0:
+                j = re.sub(f".*?{num_art}", '', j)
+            j = re.sub("§.+\n", '', j)
             num_art = num_art.split(' ')[1]
             d_art[(doc_id, num_art[:-1])] = j
             d_rev[j] = (doc_id, num_art[:-1])
+            k += 1
     return d_art, d_rev
+
 
 def art_name(collect, doc_id):
     name = {}
-    name2 = {}
     for i, num_chp in collect.itersplit(chp_sep_word):
         new_col = Collection(i)
         for j, num_art in new_col.itersplit(art_sep_word_name):
-            name[(doc_id, num_chp, num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
-            name2[(doc_id, num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
-    return name, name2
+            name[(doc_id, num_art.split(' ')[1][:-1])] = ' '.join(num_art.split()[2:])
+    return name
 
 
 def iter_by_par(collect, doc_id):  #возвращение словарей с номером главы, статьи и пункта
@@ -138,10 +145,11 @@ def iter_pravoved(docs, encoding='utf-8'):
 
 
 
-'''
-names, _ = iter_by_docs("codex_26.txt", "/Users/anastasia/PycharmProjects/find_norm/codexes", 'article', 0)       #Возвращает словарь, где ключ -- пара (документ, статья), значение  -- название статьи
-print(_.values())
-'''
+
+#names, _= iter_by_docs("codex_3.txt", "/Users/anastasia/PycharmProjects/find_norm/codexes", 'article', 0)       #Возвращает словарь, где ключ -- пара (документ, статья), значение  -- название статьи
+
+
+
 
 '''
 file = open("codexes/codex_1.txt", 'r')

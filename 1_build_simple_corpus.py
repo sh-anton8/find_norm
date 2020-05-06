@@ -15,13 +15,22 @@ codexes_dir = os.path.join(PATH_TO_ROOT, "codexes")
 tokenizer = Tokenizer()
 simple_corp = SimpleCorp()
 
+simple_corp_art_names = SimpleCorp()
+
 for filename in tqdm(os.listdir(codexes_dir)):
     d1, _ = coll.iter_by_docs(filename, codexes_dir, 'article', 0)
     for doc_id, doc_text in d1.items():
         simple_corp.add_doc(doc_id, doc_text)
 
+for filename in tqdm(os.listdir(codexes_dir)):
+    names = coll.iter_by_docs(filename, codexes_dir, 'art_name', 1)
+    for doc_id, doc_text in names.items():
+        simple_corp_art_names.add_doc(doc_id, doc_text)
+
 tokenized_corp = SimpleCorp()
 tokenized_corp.make_from(simple_corp, tokenizer)
 
+
 simple_corp.save('codexes_corp_articles', os.path.join(PATH_TO_FILES, "corp"))
 tokenized_corp.save('codexes_tokenized_corp_articles', os.path.join(PATH_TO_FILES, "corp"))
+simple_corp_art_names.save('codexes_corp_art_names', os.path.join(PATH_TO_FILES, "corp"))

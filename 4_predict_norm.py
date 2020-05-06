@@ -3,6 +3,7 @@ from tools.tokenize_docs import Tokenizer
 from tools.tfidf import TFIDF
 from tools.inverse_index import InvIndex
 from tools.search import Baseline_Search
+from tools.name_codexes import name_codexes
 
 import os
 
@@ -10,6 +11,8 @@ import os
 from tools.relative_paths_to_directories import path_to_directories
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25, \
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+
+art_names = SimpleCorp.load("codexes_corp_art_names", f"{PATH_TO_FILES}/corp")
 
 # Пример того, как можно предсказать норму по запросу query
 
@@ -33,4 +36,6 @@ searchers_array.append(InvIndex.load(PATH_TO_INV_IND))
 b_search = Baseline_Search(average_func, searchers_array)
 query = 'Симметричные корректировки осуществляются в порядке, установленном настоящей статьей.'
 search_result = b_search.search(query, topN=10, dataFrReturned=True)
-print(search_result)
+for index, row in search_result.iterrows():
+    doc_id = row['doc_id']
+    print(f"{name_codexes[int(doc_id[0])]}, Cтатья {doc_id[1]}, {art_names.get_doc(row['doc_id'])}, {round(row['FinalRel'], 2)}")

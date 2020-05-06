@@ -1,6 +1,7 @@
 from tools.simple_corp import SimpleCorp
 from tools.tokenize_docs import Tokenizer
 from tools.inverse_index import InvIndex
+from tools.name_codexes import name_codexes
 import os
 
 from tools.relative_paths_to_directories import path_to_directories
@@ -15,6 +16,7 @@ codexes_dir = os.path.join(PATH_TO_ROOT, "codexes")
 
 simple_corp = SimpleCorp.load('codexes_corp_articles', f'{PATH_TO_FILES}/corp')
 tokenized_corp = SimpleCorp.load('codexes_tokenized_corp_articles', f'{PATH_TO_FILES}/corp')
+art_names = SimpleCorp.load('codexes_corp_art_names', f'{PATH_TO_FILES}/corp')
 
 tokenizer = Tokenizer()
 
@@ -25,4 +27,6 @@ inv_index.save(PATH_TO_INV_IND)
 query = 'Симметричные корректировки осуществляются в порядке, установленном настоящей статьей.'
 search_result = inv_index.search(query)
 found_articles = [(simple_corp.get_doc(doc_id), rel) for doc_id, rel in search_result]
-print(search_result)
+for res in search_result:
+    doc_id = res[0]
+    print(f"{name_codexes[int(doc_id[0])]}, Cтатья {doc_id[1]}, {art_names.get_doc(doc_id)}, {round(res[1], 2)}")

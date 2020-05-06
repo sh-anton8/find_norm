@@ -132,7 +132,7 @@ class ExpAnalizer:
                 apk[k // 2] += self.ap_k(relev_positions, k)
         apk = [a / len(self.sample) for a in apk]
         x = [i for i in range(1, K + 1, 2)]
-
+        print("exper_map: ", apk)
         self.save_graphics(x=x, metric=apk, ylabel='MAP(k)', name_file='map')
 
     def ndcg(self, K):
@@ -155,7 +155,7 @@ class ExpAnalizer:
                         ndcg[k // 2] += 1/math.log(r + 1, 2)
                         break
         ndcg = [a / len(self.sample) for a in ndcg]
-        print(ndcg)
+        print("exper_ndcg: ",  ndcg)
         x = [i for i in range(1, K + 1, 2)]
         self.save_graphics(x=x, metric=ndcg, ylabel='NDCG(k)', name_file='ndcg')
 
@@ -187,6 +187,7 @@ class ExpAnalizer:
                 mrr[k // 2] += self.mrr_k(relev_positions, k)
         mrr = [a / len(self.sample) for a in mrr]
         x = [i for i in range(1, K + 1, 2)]
+        print("exper_mrr:", mrr)
 
         self.save_graphics(x=x, metric=mrr, ylabel='MRR', name_file='mrr')
 
