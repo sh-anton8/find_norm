@@ -30,3 +30,11 @@ class Tokenizer:
                 self.cache[t] = nf
                 result.append(nf)
         return result
+
+    def tokenize_without_normalizing(self, text):
+        tokens = nltk.word_tokenize(text)
+        tokens = [re.sub(r'\s+', ' ', t) for t in tokens]
+        tokens = [re.sub(r'[^\w\s]', ' ', t) for t in tokens]
+        tokens = [t for t in tokens if t not in self.stop_words \
+                  and t and t.strip() not in punctuation]
+        return tokens
