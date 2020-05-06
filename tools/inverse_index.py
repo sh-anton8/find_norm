@@ -104,3 +104,51 @@ class InvIndex:
         print('Loading index from: {}'.format(file))
         with open(file, 'rb') as f:
             return pickle.load(f)
+
+
+
+class InvertIndexForHighlight(InvIndex):
+    # corpus не токенизирован ранее
+    def __init__(self, tokenizer, corpus):
+        InvIndex.__init__(self, tokenizer)
+        self.token_to_words = {}
+        self.word_to_token = {}
+        self.corpus = corpus
+
+    def build(self):
+        for doc_id, doc_text in self.corpus:
+            norm_tokens = self.tokenizer.tokenize(doc_text)
+            tokens = self.tokenizer.tokenize_without_normalizing(doc_text)
+            for i in range(len(norm_tokens)):
+                if (self.token_to_words.get(norm_tokens[i]) == None):
+                    self.token_to_words[norm_tokens[i]] = [tokens[i]]
+                else:
+                    self.token_to_words[norm_tokens[i]].append(tokens[i])
+
+                if (self.word_to_token.get(tokens[i]) == None):
+                    self.word_to_token[tokens[i]] = norm_tokens[i]
+
+    def hightlight_words(self, query, answers):
+        tokens = self.tokenizer.tokenize(query)
+        for ans in answers:
+            print_flag = True
+            doc = self.corpus.get_doc(ans)
+            doc_tokens = self.tokenizer.tokenize_without_normalizing(doc)
+            for token in doc_tokens:
+                if self.word_to_token[token] in tokens:
+                    print(token, end=' ')
+                    print_flag = True
+                elif print_flag:
+                    print("...", end=' ')
+                    print_flag = False
+            print()
+
+
+
+
+
+
+
+
+
+
