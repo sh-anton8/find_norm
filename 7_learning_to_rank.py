@@ -1,5 +1,6 @@
 from tools import xgboost_model, xgboost_predict, request_features, xgboost_features
 import os
+import joblib
 
 from tools.relative_paths_to_directories import path_to_directories
 
@@ -19,4 +20,5 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 xgboost_features.pravoved_features_to_files(TRAIN_SAMPLE, TEST_SAMPLE) # посчитанные признаки записываются в папку files/learning_to_rank
 xgb_model = xgboost_model.train_xgboost_model() # строится модель на основе выделенных признаков
+joblib.dump(xgb_model, "final_xgb_model.sav")
 xgboost_predict.predict_xgboost_answers(xgb_model) # считаются предсказания для тестовой выборки и записываются в files/learning_to_rank
