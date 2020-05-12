@@ -6,6 +6,7 @@ import pickle
 from tqdm import tqdm
 import pandas as pd
 from collections import Counter
+from tqdm import tqdm
 
 
 class InvIndex:
@@ -116,6 +117,7 @@ class InvertIndexForHighlight(InvIndex):
         self.corpus = corpus
 
     def build(self):
+        t = tqdm(total=len(self.corpus))
         for doc_id, doc_text in self.corpus:
             norm_tokens = self.tokenizer.tokenize(doc_text)
             tokens = self.tokenizer.tokenize_without_normalizing(doc_text)
@@ -127,21 +129,43 @@ class InvertIndexForHighlight(InvIndex):
 
                 if (self.word_to_token.get(tokens[i]) == None):
                     self.word_to_token[tokens[i]] = norm_tokens[i]
+            t.update(1)
+        t.close()
 
-    def hightlight_words(self, query, answers):
+    # answer - номер ответа в нашей нумерации
+    def hightlight_words(self, query, answer):
         tokens = self.tokenizer.tokenize(query)
-        for ans in answers:
-            print_flag = True
-            doc = self.corpus.get_doc(ans)
-            doc_tokens = self.tokenizer.tokenize_without_normalizing(doc)
-            for token in doc_tokens:
-                if self.word_to_token[token] in tokens:
-                    print(token, end=' ')
-                    print_flag = True
-                elif print_flag:
-                    print("...", end=' ')
-                    print_flag = False
-            print()
+
+        doc = self.corpus.get_doc(answer)
+        doc_tokens = self.tokenizer.tokenize_without_normalizing(doc)
+
+        bit_card = [0] * len(doc_tokens)
+        for ind in range(len(doc_tokens)):
+            if self.word_to_token[doc_tokens[ind]] in tokens:
+                for num in range(ind - 3, ind + 4):
+                    if num >= 0 and num < len(doc_tokens):
+                        bit_card[num] = 1
+
+        print_flag = True
+        for ind in range(len(doc_tokens)):
+            if bit_card[ind]:
+                print(doc_tokens[ind], end=' ')
+                print_flag = True
+            elif print_flag:
+                print("...", end=' ')
+                print_flag = False
+        print()
+
+    def save(self, file):
+        print('Saving InvertIndexForHighlight to: {}'.format(file))
+        with open(file, 'wb') as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def load(file):
+        print('Loading InvertIndexForHighlight from: {}'.format(file))
+        with open(file, 'rb') as f:
+            return pickle.load(f)
 
 
 
