@@ -144,12 +144,17 @@ class InvertIndexForHighlight(InvIndex):
             if self.word_to_token[doc_tokens[ind]] in tokens:
                 for num in range(ind - 3, ind + 4):
                     if num >= 0 and num < len(doc_tokens):
-                        bit_card[num] = 1
+                        if bit_card[num] != 2:
+                            bit_card[num] = 1
+                bit_card[ind] = 2
 
         print_flag = True
         for ind in range(len(doc_tokens)):
-            if bit_card[ind]:
+            if bit_card[ind] == 1:
                 print(doc_tokens[ind], end=' ')
+                print_flag = True
+            elif bit_card[ind] == 2:
+                print('\033[1m' + doc_tokens[ind] + '\033[0m', end=' ')
                 print_flag = True
             elif print_flag:
                 print("...", end=' ')
