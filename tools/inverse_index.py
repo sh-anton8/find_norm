@@ -149,17 +149,21 @@ class InvertIndexForHighlight(InvIndex):
                 bit_card[ind] = 2
 
         print_flag = True
+
+        highlight_words = []
         for ind in range(len(doc_tokens)):
             if bit_card[ind] == 1:
-                print(doc_tokens[ind], end=' ')
+                highlight_words.append(doc_tokens[ind])
                 print_flag = True
             elif bit_card[ind] == 2:
-                print('\033[1m' + doc_tokens[ind] + '\033[0m', end=' ')
+                jj = open("file.txt", 'a')
+                jj.write('\033[1m' + doc_tokens[ind] + '\033[0m')
+                highlight_words.append('\033[1m' + doc_tokens[ind] + '\033[0m')
                 print_flag = True
             elif print_flag:
-                print("...", end=' ')
+                highlight_words.append("...")
                 print_flag = False
-        print()
+        return ' '.join(highlight_words)
 
     def save(self, file):
         print('Saving InvertIndexForHighlight to: {}'.format(file))

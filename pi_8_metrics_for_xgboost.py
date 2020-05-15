@@ -11,7 +11,7 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
 
 '''
 Подсчет метрик ранжирования для предсказанных результатов для тестовой выборки
-ВАЖНО! Тестовая и тренировочная выборка такие же как в 7_learning_to_rank.py
+ВАЖНО! Тестовая и тренировочная выборка такие же как в pi_7_learning_to_rank.py
 '''
 
 TRAIN_SAMPLE = (428, 1429)

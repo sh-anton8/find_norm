@@ -12,12 +12,12 @@ PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PAT
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
 
-def predict_norm(request):
+def predict_norm(request, features=None):
     new_request = Request(request, "", "").create_dict()
 
     xgb_model = joblib.load("final_xgb_model.sav")
 
-    create_feature_files_for_all_requests([new_request], "files/")
+    create_feature_files_for_all_requests([new_request], "files/", features)
     features = pd.read_pickle(f"{PATH_TO_FILES}/0.pickle")
 
     x_test = features.drop(['is_rel', '7'], axis=1)
@@ -25,7 +25,6 @@ def predict_norm(request):
 
     test_dmatrix = DMatrix(x_test)
     test_dmatrix.set_group(group_test)
-
     pred = xgb_model.predict(test_dmatrix)
 
     corpus = SimpleCorp.load("codexes_corp_articles", os.path.join(PATH_TO_FILES, "corp"))
@@ -38,8 +37,10 @@ def predict_norm(request):
     prediction_answer.sort(key=lambda x: x[1], reverse=True)
 
     valid_answers = []
-    for res in prediction_answer[:5]:
+    for i, res in enumerate(prediction_answer[:5]):
         doc_id = res[0]
-        rel = round(res[1], 3)
-        valid_answers.append(f"{name_codexes[int(doc_id[0])]}, Cтатья {doc_id[1]}, {art_names.get_doc(doc_id)}, {'%.3f' % rel}")
-        return valid_answers
+        cod = name_codexes[int(doc_id[0])]
+        answer = f"{i + 1}. Cтатья {doc_id[1]}, {art_names.get_doc(doc_id)} // {cod[0]}{cod[1:].lower()}."
+        print(answer)
+        valid_answers.append(answer)
+    return valid_answers

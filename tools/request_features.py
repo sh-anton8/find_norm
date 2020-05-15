@@ -2,7 +2,7 @@ import typing as tp
 import os
 from tqdm import tqdm
 from tools.simple_corp import SimpleCorp
-from typing import List
+from typing import List, Any
 import pandas as pd
 from tools.inverse_index import InvIndex
 from tools.tfidf import TFIDF
@@ -70,14 +70,17 @@ def create_feature_file_for_request(request, path_to_file, all_features) -> None
     save_feature_table(table_features, path_to_file)
 
 
-def create_feature_files_for_all_requests(requests: tp.List[tp.Dict[str, str]], path_to_dir: str) -> None:
+def create_feature_files_for_all_requests(requests: tp.List[tp.Dict[str, str]], path_to_dir: str,
+                                          features: List[Any]=None) -> None:
     # запись в директорию файлов с таблицами признаков для каждого запроса
 
     # класс со всеми признаками и подсчет всех tf-idf
 
     # создание списка признаков для запроса по корпусу
-    all_features = find_list_of_features_for_request()
-
+    if features is None:
+        all_features = find_list_of_features_for_request()
+    else:
+        all_features = features
     # итерация по всем запросам
     t = tqdm(total=len(requests))
     for i, request in enumerate(requests):
