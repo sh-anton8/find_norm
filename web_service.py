@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, g
-from pi_predict_norm_LTR import predict_norm
+from pi_9_predict_norm_LTR import predict_norm
 from tools.tfidf import TFIDF
 from tools.inverse_index import InvIndex
 
