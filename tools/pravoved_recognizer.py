@@ -30,7 +30,7 @@ class Request:
 
     @staticmethod
     def load(file):
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding='utf-8') as f:
             return json.load(f)
 
 
