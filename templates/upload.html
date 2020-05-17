@@ -1,8 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style>@import url(https://fonts.googleapis.com/css?family=Roboto+Slab|PT+Sans+Caption&subset=latin,cyrillic);
+*, *:before, *:after{transition:.3s linear}
+table, td, p, a {
+  font-family: 'PT Sans Caption', sans-serif;
+  font-size: 1em
+}
+    
+
+body {
+  font-family: 'PT Sans Caption', sans-serif;
+  font-size: 1em
+}
+
+h1 {
+  font-family: 'PT Sans Caption', sans-serif;
+  font-size: 1.2em
+}
+</style>
 </head>
 <body>
+
+<form method=post>
+<table style='padding: 10 10 10 0px;' cellpadding=10 border=0 width=80% height=100%>
+<tr><td valign=center><b>Введите&nbsp;запрос</b></td><td width=100%><input style='width:100%' name="text" value='{{text}}'></td><td><input type="submit" value='Найти'></td></tr>
+</table>    
+</form>
+
 <div class="container">
 <div class="header">
 <h1 class="text-muted">Результаты поиска</h1>
@@ -11,11 +36,11 @@
 <div>
   <h3>Запрос: {{text}}</h3>
   <h3>Ответы:</h3>
-<ul>
+<ol>
 {% for ans in answers%}
   <li>{{ans}}</li>
 {% endfor %}
-</ul>
+</ol>
 <hr/>
 </div>
 </div>
