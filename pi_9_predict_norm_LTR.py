@@ -7,13 +7,17 @@ from xgboost import DMatrix
 import pandas as pd
 from tools.simple_corp import SimpleCorp
 from tools.name_codexes import name_codexes
-from tools.inverse_index import InvertIndexForHighlight
 
+from flask import Markup
+
+from tools.relative_paths_to_directories import path_to_directories
+
+PATH_TO_TFIDF = "files/tf_idf/tf_idf_{}"
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25, \
-    PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
+PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
 
 
-def predict_norm(request, features=None):
+def predict_norm(request, features=None, iifh=None):
     new_request = Request(request, "", "").create_dict()
 
     xgb_model = joblib.load("final_xgb_model.sav")
@@ -37,18 +41,17 @@ def predict_norm(request, features=None):
 
     prediction_answer.sort(key=lambda x: x[1], reverse=True)
 
-    higlight_inv_ind = InvertIndexForHighlight.load(f"{PATH_TO_FILES}/IIHighlight")
-    higlight_text = []
     valid_answers = []
     for i, res in enumerate(prediction_answer[:5]):
         doc_id = res[0]
         cod = name_codexes[int(doc_id[0])]
-        answer = f"{i + 1}. Cтатья {doc_id[1]}, {art_names.get_doc(doc_id)} // {cod[0]}{cod[1:].lower()}."
-        norm_text = higlight_inv_ind.hightlight_words(request, doc_id)
+        answer = f"<p>Cтатья {doc_id[1]}. {art_names.get_doc(doc_id)} // {cod[0]}{cod[1:].lower()}.</p>"
         print(answer)
-        valid_answers.append(answer)
-        higlight_text.append(norm_text)
-    ans = []
-    for v, k in zip(valid_answers, higlight_text):
-        ans.append([v, k])
-    return ans
+        if iifh is not None:
+            snippet = iifh.hightlight_words(request, doc_id)
+            answer += f"<p style='padding-left:50px; border-left: 3px gray;'>{snippet}</p>"
+            print(snippet)
+        valid_answers.append(Markup(answer))
+    return valid_answers
+
+# predict_norm('время подачи заявления', features)
