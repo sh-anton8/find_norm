@@ -7,6 +7,7 @@ from xgboost import DMatrix
 import pandas as pd
 from tools.simple_corp import SimpleCorp
 from tools.name_codexes import name_codexes
+from tools.inverse_index import InvertIndexForHighlight
 
 PATH_TO_ROOT, PATH_TO_TOOLS, PATH_TO_FILES, PATH_TO_TF_IDF, PATH_TO_INV_IND, PATH_TO_BM_25, \
     PATH_TO_LEARNING_TO_RANK = path_to_directories(os.getcwd())
@@ -36,11 +37,18 @@ def predict_norm(request, features=None):
 
     prediction_answer.sort(key=lambda x: x[1], reverse=True)
 
+    higlight_inv_ind = InvertIndexForHighlight.load(f"{PATH_TO_FILES}/IIHighlight")
+    higlight_text = []
     valid_answers = []
     for i, res in enumerate(prediction_answer[:5]):
         doc_id = res[0]
         cod = name_codexes[int(doc_id[0])]
         answer = f"{i + 1}. Cтатья {doc_id[1]}, {art_names.get_doc(doc_id)} // {cod[0]}{cod[1:].lower()}."
+        norm_text = higlight_inv_ind.hightlight_words(request, doc_id)
         print(answer)
         valid_answers.append(answer)
-    return valid_answers
+        higlight_text.append(norm_text)
+    ans = []
+    for v, k in zip(valid_answers, higlight_text):
+        ans.append([v, k])
+    return ans

@@ -25,8 +25,8 @@ def upload_file():
 def main_page():
     text = request.form['text']
     answers = predict_norm(text, features)
-    print(answers)
-    return render_template('upload.html', answers=answers, text=text)
+    s = '<b> “hello” </b>'
+    return render_template('upload.html', answers=answers, text=text, s=s)
 
 
 if __name__ == '__main__':

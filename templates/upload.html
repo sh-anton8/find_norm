@@ -12,7 +12,7 @@
   <h3>Запрос: {{text}}</h3>
   <h3>Ответы:</h3>
 <ul>
-{% for ans in answers%}
+{% for ans, txt in answers%}
   <li>{{ans}}</li>
 {% endfor %}
 </ul>
