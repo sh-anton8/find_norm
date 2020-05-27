@@ -15,8 +15,7 @@ class InvIndex:
         self.doc_ids = []
         self.doc_lens = {}
         self.tokenizer = tokenizer
-    
-    
+
     def build_on(self, corpus, tokenized=True):
         """
         Построить обратный индекс по корпусу.
@@ -29,7 +28,7 @@ class InvIndex:
 
             tokens = doc_text if tokenized else self.tokenizer.tokenize(doc_text)
             tokens = set(tokens)  # важно - не учитываем повторы токенов
-            
+
             self.doc_lens[doc_id] = len(tokens)
 
             for token in tokens:
@@ -39,7 +38,6 @@ class InvIndex:
                 # это делается для оптимизации памяти и скорости
                 self.inv_ind[token].append(doc_num)
 
-
     def search(self, query, topN=10, threshold=0.5, metric='recall'):
         """
         Поиск по запросу.
@@ -48,7 +46,7 @@ class InvIndex:
         metric - тип релевантности: точность, полнота или F1
         """
         assert metric in ['precision', 'recall', 'f_measure']
-        
+
         tokens = set(self.tokenizer.tokenize(query))
         qlen = len(tokens)
 
@@ -69,7 +67,7 @@ class InvIndex:
                 f_measure = 2 * precision * recall / (precision + recall)
             else:
                 f_measure = 0.0
-            
+
             if metric == 'recall':
                 rel = recall
             elif metric == 'precision':
@@ -91,9 +89,8 @@ class InvIndex:
             min_rel_topN = df_res['rel'][:topN].min()
             df_res = df_res[df_res['rel'] >= min_rel_topN]
             result = df_res.values.tolist()
-            
-        return result
 
+        return result
 
     def save(self, file):
         print('Saving index to: {}'.format(file))
@@ -105,7 +102,6 @@ class InvIndex:
         print('Loading index from: {}'.format(file))
         with open(file, 'rb') as f:
             return pickle.load(f)
-
 
 
 class InvertIndexForHighlight(InvIndex):
@@ -156,13 +152,9 @@ class InvertIndexForHighlight(InvIndex):
                 highlight_words.append(doc_tokens[ind])
                 print_flag = True
             elif bit_card[ind] == 2:
-<<<<<<< HEAD
-                highlight_words.append(f'<b> {doc_tokens[ind]} </b>')
-=======
                 jj = open("file.txt", 'a')
                 jj.write('<b>' + doc_tokens[ind] + '</b>')
                 highlight_words.append('<b>' + doc_tokens[ind] + '</b>')
->>>>>>> 737ceb010f91e28cb51fd0659943e43962eb6c8b
                 print_flag = True
             elif print_flag:
                 highlight_words.append("...")
@@ -179,13 +171,3 @@ class InvertIndexForHighlight(InvIndex):
         print('Loading InvertIndexForHighlight from: {}'.format(file))
         with open(file, 'rb') as f:
             return pickle.load(f)
-
-
-
-
-
-
-
-
-
-

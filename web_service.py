@@ -17,12 +17,12 @@ app = Flask(__name__)
 features = []
 iifh = InvertIndexForHighlight.load(os.path.join(PATH_TO_FILES, "IIHighlight"))
 
+
 @app.before_first_request
 def load_tfidf():
     for i in range(1, 7):
         features.append(TFIDF.load(PATH_TO_TFIDF.format(i)))
     features.append(InvIndex.load("files/inv_ind.pickle"))
-
 
 
 @app.route('/', methods=['GET'])
