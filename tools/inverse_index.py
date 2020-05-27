@@ -152,8 +152,6 @@ class InvertIndexForHighlight(InvIndex):
                 highlight_words.append(doc_tokens[ind])
                 print_flag = True
             elif bit_card[ind] == 2:
-                jj = open("file.txt", 'a')
-                jj.write('<b>' + doc_tokens[ind] + '</b>')
                 highlight_words.append('<b>' + doc_tokens[ind] + '</b>')
                 print_flag = True
             elif print_flag:
